@@ -18,5 +18,8 @@
     <ClCompile Include="gengar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
