@@ -155,6 +155,9 @@
     <ClCompile Include="gengar.cpp" />
     <ClCompile Include="shell.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shell.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
