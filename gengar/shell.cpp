@@ -52,7 +52,7 @@ std::string RunShellCommand(std::string cmd)
 	PROCESS_INFORMATION proc_info;
 	auto  startup_info = GetPipeStartupInfo();
 	auto cmdline = "/c " + cmd;
-	CreateProcessA(
+	if (CreateProcessA(
 		CMD_PATH.data(),
 		cmdline.data(),
 		nullptr,
@@ -63,7 +63,12 @@ std::string RunShellCommand(std::string cmd)
 		nullptr,
 		&startup_info,
 		&proc_info
-	);
+	) == 0)
+	{
+		std::cerr << "Failed to create process: " << GetLastError() << std::endl;
+		std::exit(1);
+	};
+	WaitForSingleObject(proc_info.hProcess, INFINITE);
 	CloseHandle(proc_info.hThread);
 	CloseHandle(proc_info.hProcess);
 	CloseHandle(out_wr);
