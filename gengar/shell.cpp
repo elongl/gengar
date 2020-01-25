@@ -8,7 +8,7 @@ const std::string CMD_PATH = "C:\\Windows\\System32\\cmd.exe";
 HANDLE out_rd = NULL;
 HANDLE out_wr = NULL;
 
-STARTUPINFOA GetStartupInfo()
+STARTUPINFOA GetPipeStartupInfo()
 {
 	STARTUPINFOA startup_info;
 	startup_info.hStdInput = out_wr;
@@ -50,16 +50,18 @@ std::string RunShellCommand(std::string cmd)
 {
 	std::cout << "Running: " << cmd << std::endl;
 	PROCESS_INFORMATION proc_info;
+	auto  startup_info = GetPipeStartupInfo();
+	auto cmdline = "/c " + cmd;
 	CreateProcessA(
-		CMD_PATH.data(),
-		("/c " + cmd).data(),
+		CMD_PATH.c_str(),
+		cmdline.data(),
 		nullptr,
 		nullptr,
 		true,
 		CREATE_NO_WINDOW,
 		nullptr,
 		nullptr,
-		&GetStartupInfo(),
+		&startup_info,
 		&proc_info
 	);
 	CloseHandle(proc_info.hThread);
