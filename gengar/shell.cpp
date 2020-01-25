@@ -18,8 +18,6 @@ STARTUPINFOA GetStartupInfo()
 	return startup_info;
 }
 
-std::string GetCommandLine(std::string cmd) { return "/c " + cmd; }
-
 void CreateOutputPipe()
 {
 	SECURITY_ATTRIBUTES secattrs;
@@ -54,7 +52,7 @@ std::string RunShellCommand(std::string cmd)
 	PROCESS_INFORMATION proc_info;
 	CreateProcessA(
 		CMD_PATH.data(),
-		GetCommandLine(cmd).data(),
+		("/c " + cmd).data(),
 		nullptr,
 		nullptr,
 		true,
