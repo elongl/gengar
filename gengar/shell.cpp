@@ -53,7 +53,7 @@ std::string RunShellCommand(std::string cmd)
 	auto  startup_info = GetPipeStartupInfo();
 	auto cmdline = "/c " + cmd;
 	CreateProcessA(
-		CMD_PATH.c_str(),
+		CMD_PATH.data(),
 		cmdline.data(),
 		nullptr,
 		nullptr,
