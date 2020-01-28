@@ -2,7 +2,7 @@
 #include <iostream>
 #include "utils.h"
 
-#define PIPE_BUFSIZE 8192
+constexpr std::size_t PIPE_BUFSIZE = 8192;
 
 struct pipe_streams {
   HANDLE rd;
