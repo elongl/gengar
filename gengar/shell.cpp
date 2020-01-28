@@ -36,17 +36,14 @@ std::string read_output_pipe(pipe_streams pipe) {
   while (true) {
     if (ReadFile(pipe.rd, &buf, PIPE_BUFSIZE, &bytes_read, 0)) {
       output.append(buf, bytes_read);
+    } else if (bytes_read == 0) {
+      CloseHandle(pipe.rd);
+      return output;
     } else {
-      if (bytes_read == 0) {
-        break;
-      } else {
-        std::cerr << "Failed to read output pipe: " << get_last_error_msg()
-                  << std::endl;
-      }
+      std::cerr << "Failed to read output pipe: " << get_last_error_msg()
+                << std::endl;
     }
   }
-  CloseHandle(pipe.rd);
-  return output;
 }
 
 std::string shell(std::string cmd) {
