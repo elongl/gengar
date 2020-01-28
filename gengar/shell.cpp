@@ -3,67 +3,67 @@
 
 #define PIPE_BUFSIZE 8192
 
-HANDLE out_rd = NULL;
-HANDLE out_wr = NULL;
 
-
-std::string GetCmdPath()
+struct pipe
 {
-	char path[1024];
-	GetEnvironmentVariableA("comspec", path, sizeof(path));
-	return path;
-}
+	HANDLE rd;
+	HANDLE wr;
+};
 
-STARTUPINFOA GetPipeStartupInfo()
+
+STARTUPINFOA GetPipeStartupInfo(struct pipe pipe)
 {
 	STARTUPINFOA startup_info{};
-	startup_info.hStdOutput = out_wr;
-	startup_info.hStdError = out_wr;
+	startup_info.hStdOutput = pipe.wr;
+	startup_info.hStdError = pipe.wr;
 	startup_info.dwFlags = STARTF_USESTDHANDLES;
 	return startup_info;
 }
 
-void CreateOutputPipe()
+struct pipe CreateOutputPipe()
 {
+	struct pipe pipe;
 	SECURITY_ATTRIBUTES secattrs{};
+	secattrs.nLength = sizeof(secattrs);
 	secattrs.bInheritHandle = true;
-	if (!CreatePipe(&out_rd, &out_wr, &secattrs, 0))
+	if (!CreatePipe(&pipe.rd, &pipe.wr, &secattrs, 0))
 	{
 		std::cerr << "Failed to create pipe: " << GetLastError() << std::endl;
 	}
+	return pipe;
 }
 
-std::string ReadOutputPipe()
+std::string ReadOutputPipe(struct pipe pipe)
 {
 	unsigned long bytes_read;
 	char buf[PIPE_BUFSIZE];
 	std::string output;
+	CloseHandle(pipe.wr);
 	while (true)
 	{
-		if (ReadFile(out_rd, &buf, PIPE_BUFSIZE, &bytes_read, 0))
+		if (ReadFile(pipe.rd, &buf, PIPE_BUFSIZE, &bytes_read, 0))
+		{
+			output.append(buf, bytes_read);
+		}
+		else
 		{
 			if (bytes_read == 0) { break; }
-			else
-			{
-				output.append(buf, bytes_read);
-				if (bytes_read < PIPE_BUFSIZE) { break; }
-			}
+			else { std::cerr << "Failed to read output pipe: " << GetLastError() << std::endl; }
 		}
-		else { std::cerr << "Failed to read output pipe: " << GetLastError() << std::endl; }
 	}
+	CloseHandle(pipe.rd);
 	return output;
 }
 
 std::string RunShellCommand(std::string cmd)
 {
 	PROCESS_INFORMATION proc_info;
-	CreateOutputPipe();
-	auto startup_info = GetPipeStartupInfo();
-	auto cmdline = "/c " + cmd;
+	struct pipe pipe = CreateOutputPipe();
+	auto startup_info = GetPipeStartupInfo(pipe);
 	std::cout << "Running: " << cmd << std::endl;
 	if (!CreateProcessA(
-		GetCmdPath().data(),
-		cmdline.data(),
+		nullptr,
+		("cmd.exe /c " + cmd).data(),
 		nullptr,
 		nullptr,
 		true,
@@ -79,8 +79,5 @@ std::string RunShellCommand(std::string cmd)
 	WaitForSingleObject(proc_info.hProcess, INFINITE);
 	CloseHandle(proc_info.hProcess);
 	CloseHandle(proc_info.hThread);
-	CloseHandle(out_wr);
-	auto output = ReadOutputPipe();
-	CloseHandle(out_rd);
-	return output;
+	return ReadOutputPipe(pipe);
 }
