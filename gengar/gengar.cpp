@@ -1,6 +1,4 @@
 #include <iostream>
+#include "shell.h"
 
-int main()
-{
-    std::cout << "Hello World!\n";
-}
+int main() { std::cout << shell("hostname"); }
