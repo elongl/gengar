@@ -24,8 +24,7 @@ pipe_streams create_output_pipe() {
   secattrs.nLength = sizeof(secattrs);
   secattrs.bInheritHandle = true;
   if (!CreatePipe(&pipe.rd, &pipe.wr, &secattrs, 0)) {
-    std::cerr << "Failed to create pipe: " << get_last_error_msg()
-              << std::endl;
+    std::cerr << "Failed to create pipe: " << get_last_error_msg() << std::endl;
   }
   return pipe;
 }
@@ -62,8 +61,9 @@ std::string shell(std::string cmd) {
     std::cerr << "Failed to create process: " << get_last_error_msg()
               << std::endl;
   };
+  auto output = read_output_pipe(pipe);
   WaitForSingleObject(proc_info.hProcess, INFINITE);
   CloseHandle(proc_info.hProcess);
   CloseHandle(proc_info.hThread);
-  return read_output_pipe(pipe);
+  return output;
 }
