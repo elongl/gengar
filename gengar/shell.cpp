@@ -9,8 +9,7 @@ struct pipe_streams {
   HANDLE wr;
 };
 
-STARTUPINFOA
-get_pipe_startup_info(pipe_streams pipe) {
+STARTUPINFOA get_pipe_startup_info(pipe_streams pipe) {
   STARTUPINFOA startup_info{};
   startup_info.hStdOutput = pipe.wr;
   startup_info.hStdError = pipe.wr;
