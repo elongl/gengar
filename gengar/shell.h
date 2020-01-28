@@ -1,4 +1,4 @@
 #pragma once
 #include <string>
 
-std::string RunShellCommand(std::string cmd);
+std::string shell(std::string cmd);

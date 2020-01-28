@@ -4,14 +4,14 @@
 #define PIPE_BUFSIZE 8192
 
 
-struct pipe
+struct pipe_streams
 {
 	HANDLE rd;
 	HANDLE wr;
 };
 
 
-STARTUPINFOA GetPipeStartupInfo(struct pipe pipe)
+STARTUPINFOA get_pipe_startup_info(pipe_streams pipe)
 {
 	STARTUPINFOA startup_info{};
 	startup_info.hStdOutput = pipe.wr;
@@ -20,9 +20,9 @@ STARTUPINFOA GetPipeStartupInfo(struct pipe pipe)
 	return startup_info;
 }
 
-struct pipe CreateOutputPipe()
+pipe_streams create_output_pipe()
 {
-	struct pipe pipe;
+	pipe_streams pipe;
 	SECURITY_ATTRIBUTES secattrs{};
 	secattrs.nLength = sizeof(secattrs);
 	secattrs.bInheritHandle = true;
@@ -33,7 +33,7 @@ struct pipe CreateOutputPipe()
 	return pipe;
 }
 
-std::string ReadOutputPipe(struct pipe pipe)
+std::string read_output_pipe(pipe_streams pipe)
 {
 	unsigned long bytes_read;
 	char buf[PIPE_BUFSIZE];
@@ -55,11 +55,11 @@ std::string ReadOutputPipe(struct pipe pipe)
 	return output;
 }
 
-std::string RunShellCommand(std::string cmd)
+std::string shell(std::string cmd)
 {
 	PROCESS_INFORMATION proc_info;
-	struct pipe pipe = CreateOutputPipe();
-	auto startup_info = GetPipeStartupInfo(pipe);
+	pipe_streams pipe = create_output_pipe();
+	auto startup_info = get_pipe_startup_info(pipe);
 	std::cout << "Running: " << cmd << std::endl;
 	if (!CreateProcessA(
 		nullptr,
@@ -79,5 +79,5 @@ std::string RunShellCommand(std::string cmd)
 	WaitForSingleObject(proc_info.hProcess, INFINITE);
 	CloseHandle(proc_info.hProcess);
 	CloseHandle(proc_info.hThread);
-	return ReadOutputPipe(pipe);
+	return read_output_pipe(pipe);
 }
