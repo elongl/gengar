@@ -5,5 +5,5 @@
 - Keylogger
 - Screenshot
 - Run on startup
+- Network Proxy
 - Popping MessageBox
-
