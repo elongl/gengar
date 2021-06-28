@@ -87,7 +87,10 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
             }
         }
         else
-            break;
+        {
+            log_info("Connected to CNC.");
+            return;
+        }
     }
 }
 
