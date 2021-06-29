@@ -1,8 +1,9 @@
 # Gengar Documentation
 
 ## Features
+
 - Shell Commands
-- Keylogger
+- File I/O
 - Screenshot
 - Run on startup
 - Network Proxy
