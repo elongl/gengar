@@ -1,19 +1,25 @@
 #include <windows.h>
 #include <stdio.h>
 #include "logger.h"
+#include "shell.h"
 
-int exec_shell_cmd(char *cmd, char *output)
+int shell(struct shell_cmd *cmd)
 {
-    char psBuffer[128];
-    FILE *pPipe;
+    int ret;
+    STARTUPINFO startup_info = {.cb = sizeof(startup_info)};
+    PROCESS_INFORMATION proc_info = {};
+    char cmdline[strlen("/c ") + strlen(cmd->cmd) + 1];
 
-    if ((pPipe = _popen(cmd, "r")) == NULL)
-        exit(1);
-    while (fgets(psBuffer, 128, pPipe))
-        puts(psBuffer);
-
-    if (feof(pPipe))
-        log_info("\nProcess returned %d\n", _pclose(pPipe));
-    else
-        log_error("Failed to read the pipe to the end.");
+    sprintf(cmdline, "/c %s", cmd->cmd);
+    ret = CreateProcessA("cmd.exe", cmdline, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+                         NULL, NULL, &startup_info, &proc_info);
+    if (!ret)
+    {
+        log_error("Error at CreateProcessA(): %ld", GetLastError());
+        return EXEC_SHELL_FAILED;
+    }
+    WaitForSingleObject(proc_info.hProcess, INFINITE);
+    GetExitCodeProcess(proc_info.hProcess, &cmd->exit_code);
+    CloseHandle(proc_info.hProcess);
+    log_info("\"%s\" exited with %d", cmd->cmd, cmd->exit_code);
 }
