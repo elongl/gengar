@@ -1,0 +1,1 @@
+int exec_shell_cmd(char *cmd, char *output);

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "logger.h"
 
-int exec_shell_cmd(char *cmd)
+int exec_shell_cmd(char *cmd, char *output)
 {
     char psBuffer[128];
     FILE *pPipe;
