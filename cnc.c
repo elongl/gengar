@@ -4,10 +4,8 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+#include "cnc.h"
 #include "logger.h"
-
-#define CNC_PORT "5000"
-#define SLEEP_INTERVAL_ON_CONNREFUSED_MS 30 * 1000
 
 SOCKET cnc_sock = INVALID_SOCKET;
 char *cnc_host;

@@ -1,3 +1,8 @@
+#include "utils.h"
+
+#define CMD_PATH "C:\\Windows\\System32\\cmd.exe"
+#define CMD_ARG_LEN STRLEN("/c ")
+
 #define EXEC_SHELL_FAILED -1
 
 struct shell_cmd

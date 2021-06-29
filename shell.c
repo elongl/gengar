@@ -8,10 +8,10 @@ int shell(struct shell_cmd *cmd)
     int ret;
     STARTUPINFO startup_info = {.cb = sizeof(startup_info)};
     PROCESS_INFORMATION proc_info = {};
-    char cmdline[strlen("/c ") + strlen(cmd->cmd) + 1];
+    char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
 
     sprintf(cmdline, "/c %s", cmd->cmd);
-    ret = CreateProcessA("cmd.exe", cmdline, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+    ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, FALSE, CREATE_NO_WINDOW,
                          NULL, NULL, &startup_info, &proc_info);
     if (!ret)
     {
