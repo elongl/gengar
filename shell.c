@@ -3,6 +3,24 @@
 #include "logger.h"
 #include "shell.h"
 
+struct output_pipe out;
+
+void init_output_pipe()
+{
+    SECURITY_ATTRIBUTES sec_attrs = {.nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE};
+    if (!CreatePipe(&out.rd, &out.wr, &sec_attrs, 0))
+    {
+        log_error("Failed to initialize pipe for shell command output.");
+        exit(EXIT_FAILURE);
+    }
+    log_debug("Initialized output pipe for shell commands.");
+}
+
+void init_shell_module()
+{
+    init_output_pipe();
+}
+
 int shell(struct shell_cmd *cmd)
 {
     int ret;
