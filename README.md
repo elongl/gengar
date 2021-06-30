@@ -1,10 +1,8 @@
-# Gengar Documentation
-
 ## Features
-
-- Shell Commands
-- File I/O
-- Screenshot
-- Run on startup
-- Network Proxy
-- Popping MessageBox
+- [x] Shell Commands
+- [ ] Authorization
+- [ ] Popping MessageBox
+- [ ] Run on startup
+- [ ] File I/O
+- [ ] Screenshot
+- [ ] Network Proxy
