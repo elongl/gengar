@@ -2,7 +2,7 @@
 
 - [x] Shell Commands
 - [x] Authentication
-- [ ] Popping MessageBox
+- [x] Popping MessageBox
 - [ ] Run on startup
 - [ ] File I/O
 - [ ] Screenshot
