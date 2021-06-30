@@ -7,7 +7,7 @@ void fatal_error(char *msg, ...)
     va_list args;
 
     va_start(args, msg);
-    log_error(msg, args);
+    _log("FATAL", msg, args);
     va_end(args);
 
     exit(EXIT_FAILURE);
