@@ -8,7 +8,7 @@ struct output_pipe out_pipe;
 void init_output_pipe()
 {
     SECURITY_ATTRIBUTES sec_attrs = {.nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE};
-    if (!CreatePipe(&out_pipe->rd, &out_pipe->wr, &sec_attrs, 0))
+    if (!CreatePipe(&out_pipe.rd, &out_pipe.wr, &sec_attrs, 0))
     {
         log_error("Failed to initialize pipe for shell command output.");
         exit(EXIT_FAILURE);
@@ -26,7 +26,7 @@ int read_shell_output(void *out, unsigned int out_len)
     int ret;
     DWORD bytes_read, bytes_available;
 
-    ret = PeekNamedPipe(out_pipe->rd, NULL, 0, NULL, &bytes_available, NULL);
+    ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
     if (!ret)
     {
         log_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
@@ -37,7 +37,7 @@ int read_shell_output(void *out, unsigned int out_len)
         return 0;
     }
 
-    ret = ReadFile(out_pipe->rd, out, out_len, &bytes_read, NULL);
+    ret = ReadFile(out_pipe.rd, out, out_len, &bytes_read, NULL);
     if (!ret)
     {
         log_error("Failed to read from output pipe: %ld", GetLastError());
