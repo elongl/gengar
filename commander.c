@@ -68,7 +68,7 @@ void handle_shell()
         log_error("Received invalid shell command.");
         return;
     }
-    log_info("Received shell command: \"%s\"", cmd.cmd);
+    log_info("Command: \"%s\"", cmd.cmd);
     ret = shell(&cmd);
     free(cmd.cmd);
     if (ret == EXEC_SHELL_FAILED)

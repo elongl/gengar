@@ -30,6 +30,7 @@ int read_shell_output(struct output_pipe *out_pipe, void *out, unsigned int out_
 int shell(struct shell_cmd *cmd)
 {
     int ret;
+    create_output_pipe(&cmd->out);
     STARTUPINFO startup_info = {
         .cb = sizeof(startup_info),
         .hStdError = cmd->out.wr,
@@ -39,7 +40,6 @@ int shell(struct shell_cmd *cmd)
     char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
 
     sprintf(cmdline, "/c %s", cmd->cmd);
-    create_output_pipe(&cmd->out);
     ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
                          NULL, NULL, &startup_info, &proc_info);
     if (!ret)
