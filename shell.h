@@ -19,6 +19,6 @@ struct shell_cmd
     long unsigned int exit_code;
 };
 
-int shell(struct shell_cmd *);
+void shell(struct shell_cmd *);
 void init_shell_module();
 int read_shell_output(void *, unsigned int);

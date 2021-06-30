@@ -9,10 +9,7 @@ void init_output_pipe()
 {
     SECURITY_ATTRIBUTES sec_attrs = {.nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE};
     if (!CreatePipe(&out_pipe.rd, &out_pipe.wr, &sec_attrs, 0))
-    {
-        log_error("Failed to initialize pipe for shell command output.");
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("Failed to initialize pipe for shell command output.");
 }
 
 void init_shell_module()
@@ -28,23 +25,17 @@ int read_shell_output(void *out, unsigned int out_len)
 
     ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
     if (!ret)
-    {
-        log_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
     if (!bytes_available)
         return 0;
 
     ret = ReadFile(out_pipe.rd, out, out_len, &bytes_read, NULL);
     if (!ret)
-    {
-        log_error("Failed to read from output pipe: %ld", GetLastError());
-        exit(EXIT_FAILURE);
-    }
+        fatal_error("Failed to read from output pipe: %ld", GetLastError());
     return bytes_read;
 }
 
-int shell(struct shell_cmd *cmd)
+void shell(struct shell_cmd *cmd)
 {
     int ret;
     char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
@@ -55,10 +46,7 @@ int shell(struct shell_cmd *cmd)
     ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
                          NULL, NULL, &startup_info, &proc_info);
     if (!ret)
-    {
-        log_error("Error at CreateProcessA(): %ld", GetLastError());
-        return EXEC_SHELL_FAILED;
-    }
+        fatal_error("Error at CreateProcessA(): %ld", GetLastError());
     WaitForSingleObject(proc_info.hProcess, INFINITE);
     GetExitCodeProcess(proc_info.hProcess, &cmd->exit_code);
     CloseHandle(proc_info.hProcess);
