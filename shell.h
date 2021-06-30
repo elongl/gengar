@@ -16,9 +16,9 @@ struct shell_cmd
 {
     char *cmd;
     unsigned int cmd_len;
-    struct output_pipe out;
     long unsigned int exit_code;
 };
 
 int shell(struct shell_cmd *);
-int read_shell_output(struct output_pipe *, void *, unsigned int);
+void init_shell_module();
+int read_shell_output(void *, unsigned int);

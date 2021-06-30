@@ -3,7 +3,9 @@
 #include "logger.h"
 #include "shell.h"
 
-void create_output_pipe(struct output_pipe *out_pipe)
+struct output_pipe out_pipe;
+
+void init_output_pipe()
 {
     SECURITY_ATTRIBUTES sec_attrs = {.nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE};
     if (!CreatePipe(&out_pipe->rd, &out_pipe->wr, &sec_attrs, 0))
@@ -13,7 +15,13 @@ void create_output_pipe(struct output_pipe *out_pipe)
     }
 }
 
-int read_shell_output(struct output_pipe *out_pipe, void *out, unsigned int out_len)
+void init_shell_module()
+{
+    init_output_pipe();
+    log_debug("Initialized shell module.");
+}
+
+int read_shell_output(void *out, unsigned int out_len)
 {
     int ret;
     DWORD bytes_read, bytes_available;
@@ -43,11 +51,7 @@ int shell(struct shell_cmd *cmd)
     int ret;
     char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
     PROCESS_INFORMATION proc_info;
-    STARTUPINFO startup_info = {.cb = sizeof(startup_info), .dwFlags = STARTF_USESTDHANDLES};
-
-    create_output_pipe(&cmd->out);
-    startup_info.hStdError = cmd->out.wr;
-    startup_info.hStdOutput = cmd->out.wr;
+    STARTUPINFO startup_info = {.cb = sizeof(startup_info), .dwFlags = STARTF_USESTDHANDLES, .hStdError = out_pipe.wr, .hStdOutput = out_pipe.wr};
 
     sprintf(cmdline, "/c %s", cmd->cmd);
     ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
