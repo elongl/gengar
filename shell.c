@@ -16,7 +16,18 @@ void create_output_pipe(struct output_pipe *out_pipe)
 int read_shell_output(struct output_pipe *out_pipe, void *out, unsigned int out_len)
 {
     int ret;
-    DWORD bytes_read;
+    DWORD bytes_read, bytes_available;
+
+    ret = PeekNamedPipe(out_pipe->rd, NULL, 0, NULL, &bytes_available, NULL);
+    if (!ret)
+    {
+        log_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
+        exit(EXIT_FAILURE);
+    }
+    if (!bytes_available)
+    {
+        return 0;
+    }
 
     ret = ReadFile(out_pipe->rd, out, out_len, &bytes_read, NULL);
     if (!ret)
@@ -50,7 +61,5 @@ int shell(struct shell_cmd *cmd)
     GetExitCodeProcess(proc_info.hProcess, &cmd->exit_code);
     CloseHandle(proc_info.hProcess);
     CloseHandle(proc_info.hThread);
-    // CloseHandle(cmd->out.wr);
-    // CloseHandle(cmd->out.rd);
     log_info("\"%s\" exited with %d", cmd->cmd, cmd->exit_code);
 }
