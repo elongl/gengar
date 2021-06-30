@@ -33,9 +33,7 @@ int read_shell_output(void *out, unsigned int out_len)
         exit(EXIT_FAILURE);
     }
     if (!bytes_available)
-    {
         return 0;
-    }
 
     ret = ReadFile(out_pipe.rd, out, out_len, &bytes_read, NULL);
     if (!ret)

