@@ -138,6 +138,12 @@ void handle_msgbox()
     free(cmd.text);
 }
 
+void handle_suicide()
+{
+    log_info("Received SUICIDE command.");
+    exit(EXIT_SUCCESS);
+}
+
 void listen_for_cmds()
 {
     int ret;
@@ -162,6 +168,9 @@ void listen_for_cmds()
             break;
         case MSGBOX_CMD_TYPE:
             handle_msgbox();
+            break;
+        case SUICIDE_CMD_TYPE:
+            handle_suicide();
             break;
         }
     }
