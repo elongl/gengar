@@ -15,6 +15,7 @@ struct output_pipe
 struct shell_cmd
 {
     char *cmd;
+    char out[8192];
     unsigned int cmd_len;
     long unsigned int exit_code;
 };
