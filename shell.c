@@ -18,7 +18,7 @@ void init_shell_module()
     log_debug("Initialized shell module.");
 }
 
-int read_shell_output(void *out, unsigned int out_len)
+int read_shell_output(struct shell_cmd *cmd)
 {
     int ret;
     DWORD bytes_read, bytes_available;
@@ -29,7 +29,7 @@ int read_shell_output(void *out, unsigned int out_len)
     if (!bytes_available)
         return 0;
 
-    ret = ReadFile(out_pipe.rd, out, out_len, &bytes_read, NULL);
+    ret = ReadFile(out_pipe.rd, cmd->out, sizeof(cmd->out), &bytes_read, NULL);
     if (!ret)
         fatal_error("Failed to read from output pipe: %ld", GetLastError());
     return bytes_read;

