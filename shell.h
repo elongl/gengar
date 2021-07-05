@@ -4,8 +4,6 @@
 #define CMD_PATH "C:\\Windows\\System32\\cmd.exe"
 #define CMD_ARG_LEN STRLEN("/c ")
 
-#define EXEC_SHELL_FAILED -1
-
 struct output_pipe
 {
     HANDLE rd;
@@ -15,10 +13,13 @@ struct output_pipe
 struct shell_cmd
 {
     char *cmd;
+    char out[8192];
     unsigned int cmd_len;
-    long unsigned int exit_code;
+    unsigned long exit_code;
+    PROCESS_INFORMATION proc_info;
 };
 
-void shell(struct shell_cmd *);
 void init_shell_module();
-int read_shell_output(void *, unsigned int);
+void shell(struct shell_cmd *);
+unsigned long read_shell_output(struct shell_cmd *);
+void close_shell_process(struct shell_cmd *cmd);

