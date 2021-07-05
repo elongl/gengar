@@ -16,6 +16,7 @@ struct shell_cmd
     char out[8192];
     unsigned int cmd_len;
     long unsigned int exit_code;
+    PROCESS_INFORMATION proc_info;
 };
 
 void init_shell_module();
