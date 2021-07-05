@@ -50,9 +50,9 @@ void shell(struct shell_cmd *cmd)
 
 void close_shell_process(struct shell_cmd *cmd)
 {
-    GetExitCodeProcess(cmd.proc_info.hProcess, &cmd.exit_code);
-    CloseHandle(cmd.proc_info.hProcess);
-    CloseHandle(cmd.proc_info.hThread);
-    log_info("\"%s\" exited with %d", cmd.cmd, cmd.exit_code);
-    free(cmd.cmd);
+    GetExitCodeProcess(cmd->proc_info.hProcess, &cmd->exit_code);
+    CloseHandle(cmd->proc_info.hProcess);
+    CloseHandle(cmd->proc_info.hThread);
+    log_info("\"%s\" exited with %d", cmd->cmd, cmd->exit_code);
+    free(cmd->cmd);
 }
