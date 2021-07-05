@@ -15,11 +15,11 @@ struct shell_cmd
     char *cmd;
     char out[8192];
     unsigned int cmd_len;
-    long unsigned int exit_code;
+    unsigned long exit_code;
     PROCESS_INFORMATION proc_info;
 };
 
 void init_shell_module();
 void shell(struct shell_cmd *);
-int read_shell_output(struct shell_cmd *);
+unsigned long read_shell_output(struct shell_cmd *);
 void close_shell_process(struct shell_cmd *cmd);

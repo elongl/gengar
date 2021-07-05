@@ -18,7 +18,7 @@ void init_shell_module()
     log_debug("Initialized shell module.");
 }
 
-int read_shell_output(struct shell_cmd *cmd)
+unsigned long read_shell_output(struct shell_cmd *cmd)
 {
     int ret;
     DWORD bytes_read, bytes_available;
