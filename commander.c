@@ -152,6 +152,11 @@ void handle_upload_file()
         return;
     }
     cmd.local_path = malloc(cmd.local_path_len + 1);
+    if (!cmd.local_path)
+    {
+        log_error("Failed to allocate memory for file path.");
+        return;
+    }
 
     bytes_read = recv_cnc(cmd.local_path, cmd.local_path_len);
     if (bytes_read != cmd.local_path_len)
