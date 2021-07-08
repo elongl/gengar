@@ -141,7 +141,7 @@ void handle_upload_file()
     int ret;
     unsigned long bytes_read;
     HANDLE file;
-    struct upload_file_cmd cmd;
+    struct file_cmd cmd;
 
     log_info("Received UPLOAD_FILE command.");
 

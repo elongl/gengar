@@ -1,4 +1,4 @@
-struct upload_file_cmd
+struct file_cmd
 {
     unsigned int local_path_len;
     char *local_path;
