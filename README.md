@@ -3,8 +3,8 @@
 - [x] Shell Commands
 - [x] Authentication
 - [x] Popping MessageBox
+- [x] File I/O
 - [ ] Run on startup
-- [ ] File I/O
 - [ ] Self-Update
 - [ ] Screenshot
 - [ ] Network Proxy
