@@ -1,8 +1,8 @@
 debug:
-	gcc *.c -o gengar -lws2_32
+	gcc -Wall *.c -o gengar -lws2_32
 
 release:
-	gcc *.c -o gengar -lws2_32 -mwindows
+	gcc -Wall *.c -o gengar -lws2_32 -mwindows
 
 release_host:
-	gcc *.c -o gengar -lws2_32 -mwindows -DHOST=\"$(host)\"
+	gcc -Wall *.c -o gengar -lws2_32 -mwindows -DHOST=\"$(host)\"
