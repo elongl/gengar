@@ -26,6 +26,7 @@ unsigned long read_shell_output(struct shell_cmd *cmd)
     ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
     if (ret == 0)
         fatal_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
+
     if (bytes_available == 0)
         return 0;
 
