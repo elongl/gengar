@@ -20,32 +20,27 @@ void init_shell_module()
 
 unsigned long read_shell_output(struct shell_cmd *cmd)
 {
-    int ret = 0;
     DWORD bytes_read = 0, bytes_available = 0;
 
-    ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
-    if (ret == 0)
+    if (PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL) == 0)
         fatal_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
 
     if (bytes_available == 0)
         return 0;
 
-    ret = ReadFile(out_pipe.rd, cmd->out, sizeof(cmd->out), &bytes_read, NULL);
-    if (ret == 0)
+    if (ReadFile(out_pipe.rd, cmd->out, sizeof(cmd->out), &bytes_read, NULL) == 0)
         fatal_error("Failed to read from output pipe: %ld", GetLastError());
     return bytes_read;
 }
 
 void shell(struct shell_cmd *cmd)
 {
-    int ret = 0;
     char cmdline[CMD_ARG_LEN + cmd->cmd_len + 1];
     STARTUPINFO startup_info = {.cb = sizeof(startup_info), .dwFlags = STARTF_USESTDHANDLES, .hStdError = out_pipe.wr, .hStdOutput = out_pipe.wr};
 
     sprintf(cmdline, "/c %s", cmd->cmd);
-    ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
-                         NULL, NULL, &startup_info, &cmd->proc_info);
-    if (ret == 0)
+    if (CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
+                       NULL, NULL, &startup_info, &cmd->proc_info) == 0)
         fatal_error("Error at CreateProcessA(): %ld", GetLastError());
 }
 
