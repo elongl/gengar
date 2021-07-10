@@ -123,16 +123,17 @@ int recv_cnc(void *buf, size_t len)
 int recvall_cnc(void *buf, size_t len)
 {
     int bytes_read = 0;
-    size_t total_bytes_read = 0;
+    size_t bytes_remaining = len;
 
-    while (total_bytes_read != len)
+    while (bytes_remaining)
     {
-        if ((bytes_read = recv_cnc(buf, len)) == E_CONNECTION_CLOSED)
+        if ((bytes_read = recv_cnc(buf, bytes_remaining)) == E_CONNECTION_CLOSED)
             return E_CONNECTION_CLOSED;
 
-        total_bytes_read += bytes_read;
+        bytes_remaining -= bytes_read;
+        buf += bytes_read;
     }
-    return total_bytes_read;
+    return len;
 }
 
 void init_cnc_conn(char *host)

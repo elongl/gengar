@@ -287,7 +287,7 @@ void handle_download_file()
 
         written_file_bytes += bytes_read;
 
-        if (!WriteFile(file, cmd.file_chunk, bytes_read, NULL, NULL))
+        if (WriteFile(file, cmd.file_chunk, bytes_read, NULL, NULL) == 0)
         {
             return_code = E_FILE_WRITE_ERROR;
             goto cleanup;
