@@ -1,4 +1,11 @@
 enum return_codes
 {
     E_SUCCESS = 0,
+    E_CONNECTION_CLOSED = 1,
+    E_INVALID_INPUT = 2,
+    E_OUT_OF_MEMORY = 3,
+    E_FILE_NOT_FOUND = 4,
+    E_FILE_CREATE_ERROR = 5,
+    E_FILE_READ_ERROR = 6,
+    E_FILE_WRITE_ERROR = 7,
 };

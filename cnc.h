@@ -10,3 +10,4 @@
 void init_cnc_conn();
 int send_cnc(void *buf, size_t len);
 int recv_cnc(void *buf, size_t len);
+int recvall_cnc(void *buf, size_t len);
