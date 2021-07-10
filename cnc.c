@@ -104,11 +104,11 @@ int send_cnc(void *buf, size_t len)
     return bytes_sent;
 }
 
-int _recv_cnc(void *buf, size_t len, int flags)
+int recv_cnc(void *buf, size_t len)
 {
     int bytes_read = 0;
 
-    bytes_read = recv(cnc_sock, buf, len, flags);
+    bytes_read = recv(cnc_sock, buf, len, 0);
     if (bytes_read == SOCKET_ERROR)
         fatal_error("Error at recv(): %ld", WSAGetLastError());
     if (bytes_read == 0)
@@ -120,14 +120,19 @@ int _recv_cnc(void *buf, size_t len, int flags)
     return bytes_read;
 }
 
-int recv_cnc(void *buf, size_t len)
-{
-    return _recv_cnc(buf, len, 0);
-}
-
 int recvall_cnc(void *buf, size_t len)
 {
-    return _recv_cnc(buf, len, MSG_WAITALL);
+    int bytes_read = 0;
+    size_t total_bytes_read = 0;
+
+    while (total_bytes_read != len)
+    {
+        if ((bytes_read = recv_cnc(buf, len)) == E_CONNECTION_CLOSED)
+            return E_CONNECTION_CLOSED;
+
+        total_bytes_read += bytes_read;
+    }
+    return total_bytes_read;
 }
 
 void init_cnc_conn(char *host)
