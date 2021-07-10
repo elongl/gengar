@@ -11,6 +11,7 @@
 void handle_echo()
 {
     int return_code = 0;
+    int bytes_read = 0;
     struct echo_cmd cmd = {};
 
     log_info("Received ECHO command.");
