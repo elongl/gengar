@@ -90,7 +90,7 @@ void connect_to_cnc(struct addrinfo *cnc_addrinfo)
     }
 }
 
-void reconnect_to_cnc()
+void reconnect_cnc()
 {
     struct addrinfo *cnc_addrinfo = NULL;
 
@@ -109,7 +109,7 @@ int send_cnc(void *buf, size_t len)
     if (bytes_sent == 0)
     {
         log_error("Connection with CNC broke.");
-        reconnect_to_cnc();
+        reconnect_cnc();
     }
     return bytes_sent;
 }
@@ -124,7 +124,7 @@ int recv_cnc(void *buf, size_t len)
     if (bytes_read == 0)
     {
         log_error("Connection with CNC broke.");
-        reconnect_to_cnc();
+        reconnect_cnc();
     }
     return bytes_read;
 }
