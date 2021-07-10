@@ -60,11 +60,13 @@ void auth_cnc()
 
 void connect_cnc(struct addrinfo *cnc_addrinfo)
 {
+    int ret = 0;
+
     while (TRUE)
     {
         if (connect(cnc_sock, cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen) == SOCKET_ERROR)
         {
-            if (WSAGetLastError() != WSAECONNREFUSED)
+            if ((ret = WSAGetLastError()) != WSAECONNREFUSED)
                 fatal_error("Error at connect(): %ld", ret);
             else
             {
