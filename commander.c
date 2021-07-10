@@ -266,7 +266,7 @@ void handle_download_file()
         goto cleanup;
     }
 
-    if (send_cnc(&ret, sizeof(ret)) != sizeof(ret))
+    if (send_cnc(&return_code, sizeof(return_code)) != sizeof(return_code))
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
