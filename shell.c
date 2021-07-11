@@ -44,7 +44,7 @@ void shell(struct shell_cmd *cmd)
         fatal_error("Error at CreateProcessA(): %ld", GetLastError());
 }
 
-void close_shell_process(struct shell_cmd *cmd)
+void close_shell(struct shell_cmd *cmd)
 {
     GetExitCodeProcess(cmd->proc_info.hProcess, &cmd->exit_code);
     CloseHandle(cmd->proc_info.hProcess);

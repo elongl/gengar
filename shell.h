@@ -22,4 +22,4 @@ struct shell_cmd
 void init_shell_module();
 void shell(struct shell_cmd *);
 unsigned long read_shell_output(struct shell_cmd *);
-void close_shell_process(struct shell_cmd *cmd);
+void close_shell(struct shell_cmd *cmd);
