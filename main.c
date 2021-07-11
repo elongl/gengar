@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 #endif
 
     log_info("Gengar started.");
-    init_cnc_conn(host);
-    init_modules();
+    cnc_init_conn(host);
+    modules_init();
     listen_for_cmds();
 }

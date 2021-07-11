@@ -1,9 +1,9 @@
 #include "logger.h"
 #include "shell.h"
 
-void init_modules()
+void modules_init()
 {
     log_info("Initializing modules.");
-    init_shell_module();
+    shell_init_module();
     log_info("Initialized modules.");
 }
