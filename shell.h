@@ -19,7 +19,7 @@ struct shell_cmd
     PROCESS_INFORMATION proc_info;
 };
 
-void init_shell_module();
+void shell_init_module();
 void shell(struct shell_cmd *);
-unsigned long read_shell_output(struct shell_cmd *);
-void close_shell(struct shell_cmd *cmd);
+unsigned long shell_read_output(struct shell_cmd *);
+void shell_close(struct shell_cmd *cmd);

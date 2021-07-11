@@ -1,1 +1,1 @@
-void init_modules();
+void modules_init();

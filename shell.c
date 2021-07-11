@@ -12,13 +12,13 @@ void init_output_pipe()
         fatal_error("Failed to initialize pipe for shell command output.");
 }
 
-void init_shell_module()
+void shell_init_module()
 {
     init_output_pipe();
     log_debug("Initialized shell module.");
 }
 
-unsigned long read_shell_output(struct shell_cmd *cmd)
+unsigned long shell_read_output(struct shell_cmd *cmd)
 {
     DWORD bytes_read = 0, bytes_available = 0;
 
@@ -44,7 +44,7 @@ void shell(struct shell_cmd *cmd)
         fatal_error("Error at CreateProcessA(): %ld", GetLastError());
 }
 
-void close_shell(struct shell_cmd *cmd)
+void shell_close(struct shell_cmd *cmd)
 {
     GetExitCodeProcess(cmd->proc_info.hProcess, &cmd->exit_code);
     CloseHandle(cmd->proc_info.hProcess);

