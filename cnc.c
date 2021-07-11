@@ -47,15 +47,15 @@ void init_cnc_sock()
 void auth_cnc()
 {
     int byte_count = 0;
-    char received_auth_key[AUTH_KEY_LEN];
+    char received_cnc_key[AUTH_KEY_LEN];
 
     log_info("Authenticating with CNC.");
-    byte_count = send_cnc(AUTH_KEY_TO_CNC, AUTH_KEY_LEN);
+    byte_count = send_cnc(GENGAR_KEY, AUTH_KEY_LEN);
     if (byte_count != AUTH_KEY_LEN)
         fatal_error("Failed to send authentication key to CNC.");
 
-    byte_count = recv_cnc(received_auth_key, AUTH_KEY_LEN);
-    if (byte_count != AUTH_KEY_LEN || memcmp(received_auth_key, AUTH_KEY_FROM_CNC, AUTH_KEY_LEN))
+    byte_count = recv_cnc(received_cnc_key, AUTH_KEY_LEN);
+    if (byte_count != AUTH_KEY_LEN || memcmp(received_cnc_key, CNC_KEY, AUTH_KEY_LEN))
         fatal_error("Received invalid authentication key from CNC.");
 }
 
