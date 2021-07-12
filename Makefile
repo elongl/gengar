@@ -1,13 +1,14 @@
 CC=gcc
-CC_ARGS=-Wall *.c -o gengar -lws2_32
-CC_RELEASE_ARGS=-mwindows
-MACRO_ARGS=-DCNC_KEY=\"${CNC_KEY}\" -DGENGAR_KEY=\"${GENGAR_KEY}\"
+CFLAGS=-Wall *.c -o gengar -lws2_32
+CFLAGS_RELEASE=-mwindows
+MACRO_FLAGS=-DCNC_KEY=\"${CNC_KEY}\" -DGENGAR_KEY=\"${GENGAR_KEY}\"
+
 
 debug:
-	$(CC) $(CC_ARGS) $(MACRO_ARGS)
+	$(CC) $(CFLAGS) $(MACRO_FLAGS)
 
 release:
-	$(CC) $(CC_ARGS) $(CC_RELEASE_ARGS) $(MACRO_ARGS)
+	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS)
 
 release_host:
-	$(CC) $(CC_ARGS) $(CC_RELEASE_ARGS) $(MACRO_ARGS) -DCNC_HOST=\"${CNC_HOST}\"
+	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS) -DCNC_HOST=\"${CNC_HOST}\"
