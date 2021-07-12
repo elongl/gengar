@@ -1,0 +1,8 @@
+#!/bin/bash
+
+KEY=$1
+
+if [ ${#KEY} -ne 36 ]; then 
+    echo "Invalid authentication key - Expected 36 characters."
+    exit 1
+fi
