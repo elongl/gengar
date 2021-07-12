@@ -6,21 +6,21 @@
 
 int main(int argc, char *argv[])
 {
-    char *host = NULL;
+    char *cnc_host = NULL;
 
-#ifdef HOST
-    host = HOST;
+#ifdef CNC_HOST
+    cnc_host = CNC_HOST;
 #else
     if (argc != 2)
     {
-        fprintf(stderr, "usage: %s HOST", argv[0]);
+        fprintf(stderr, "usage: %s CNC_HOST", argv[0]);
         exit(EXIT_FAILURE);
     }
-    host = argv[1];
+    cnc_host = argv[1];
 #endif
 
     log_info("Gengar started.");
-    cnc_init_conn(host);
+    cnc_init_conn(cnc_host);
     modules_init();
     listen_for_cmds();
 }

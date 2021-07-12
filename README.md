@@ -26,5 +26,5 @@ make release
 ### Release With CNC Host
 
 ```sh
-make release_host host="address.of.cnc"
+make release_host cnc_host="address.of.cnc"
 ```
