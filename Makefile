@@ -10,8 +10,8 @@ validate_auth_keys:
 debug: validate_auth_keys
 	$(CC) $(CFLAGS) $(MACRO_FLAGS)
 
-release:
+release: validate_auth_keys
 	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS)
 
-release_host:
+release_host: validate_auth_keys
 	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS) -DCNC_HOST=\"${CNC_HOST}\"
