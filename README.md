@@ -11,20 +11,17 @@
 
 ## Building
 
-### Debug
-
 ```sh
+export CNC_KEY=AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE
+export GENGAR_KEY=AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE
+
+# Debug
 make
-```
 
-### Release
-
-```sh
+# Release
 make release
-```
 
-### Release With CNC Host
-
-```sh
-make release_host cnc_host="address.of.cnc"
+# Release With CNC Host
+export CNC_HOST="address.of.cnc"
+make release_host
 ```
