@@ -1,9 +1,8 @@
 #!/bin/bash
 
-KEY=$1
 AUTH_KEY_LEN=36
 
-if [ ${#KEY} -ne $AUTH_KEY_LEN ]; then
+if [ ${#CNC_KEY} -ne $AUTH_KEY_LEN ] || [ ${#GENGAR_KEY} -ne $AUTH_KEY_LEN ]; then
     echo "Invalid authentication key - Expected $AUTH_KEY_LEN characters."
     exit 1
 fi

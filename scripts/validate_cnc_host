@@ -1,7 +1,5 @@
 #!/bin/bash
 
-CNC_HOST=$1
-
 if [ -z "$CNC_HOST" ]; then
     echo "Invalid CNC host."
     exit 1
