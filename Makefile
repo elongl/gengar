@@ -19,5 +19,3 @@ validate_auth_keys:
 
 validate_cnc_host:
 	scripts/validate_cnc_host
-
-

