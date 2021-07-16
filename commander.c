@@ -7,7 +7,7 @@
 #include "file.h"
 #include "screenshot.h"
 #include "commander.h"
-#include "return_codes.h"
+#include "return_code.h"
 
 void handle_echo()
 {

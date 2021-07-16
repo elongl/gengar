@@ -1,7 +1,7 @@
-#ifndef RETURN_CODES_H_INCLUDED
-#define RETURN_CODES_H_INCLUDED
+#ifndef RETURN_CODE_H
+#define RETURN_CODE_H
 
-typedef enum return_codes
+typedef enum return_code
 {
     E_SUCCESS = 0,
     E_CONNECTION_CLOSED = -1,
@@ -11,6 +11,6 @@ typedef enum return_codes
     E_FILE_CREATE_ERROR = 4,
     E_FILE_READ_ERROR = 5,
     E_FILE_WRITE_ERROR = 6,
-} return_codes;
+} return_code;
 
 #endif

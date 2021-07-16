@@ -1,3 +1,3 @@
-#include "return_codes.h"
+#include "return_code.h"
 
-return_codes screenshot();
+return_code screenshot();
