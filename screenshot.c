@@ -2,6 +2,7 @@
 
 void screenshot()
 {
+    DWORD dib_size = 0;
     int screen_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
     int screen_width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     HDC desktop = GetDC(NULL);
@@ -25,6 +26,11 @@ void screenshot()
     GetDIBits(desktop, src_bitmap, 0, screen_height, NULL, (BITMAPINFO *)&bitmap_info, DIB_RGB_COLORS);
 
     hFile = CreateFile("capture.bmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    dib_size = bitmap_info.biSize + screen.bmWidthBytes * screen.bmHeight;
+    WriteFile(hFile, &bitmap_info, sizeof(BITMAPINFOHEADER), &dib_size, NULL);
+    WriteFile(hFile, screen.bmBits, screen.bmWidthBytes * screen.bmHeight, &dib_size, NULL);
+    CloseHandle(hFile);
 
     DeleteObject(src_bitmap);
     DeleteObject(dst_bitmap);

