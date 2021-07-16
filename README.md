@@ -5,7 +5,6 @@
 - [x] Popping MessageBox
 - [x] File I/O
 - [ ] Encrypted Traffic
-- [ ] Run on startup
 - [ ] Self-Update
 - [ ] Screenshot
 - [ ] Network Proxy
