@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
-#include "logger.h"
+#include "include/logger.h"
 
 void fatal_error(char *msg, ...)
 {

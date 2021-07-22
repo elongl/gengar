@@ -4,10 +4,10 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
-#include "cnc.h"
-#include "utils.h"
-#include "logger.h"
-#include "return_code.h"
+#include "include/cnc.h"
+#include "include/utils.h"
+#include "include/logger.h"
+#include "include/return_code.h"
 
 SOCKET cnc_sock = INVALID_SOCKET;
 char *cnc_host = NULL;

@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
-#include "logger.h"
-#include "shell.h"
+#include "include/logger.h"
+#include "include/shell.h"
 
 struct output_pipe out_pipe;
 

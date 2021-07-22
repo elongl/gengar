@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include "commander.h"
-#include "cnc.h"
-#include "modules.h"
-#include "logger.h"
+#include "include/commander.h"
+#include "include/cnc.h"
+#include "include/modules.h"
+#include "include/logger.h"
 
 int main(int argc, char *argv[])
 {
