@@ -1,12 +1,12 @@
 #include <windows.h>
-#include "cnc.h"
-#include "echo.h"
-#include "shell.h"
-#include "msgbox.h"
-#include "logger.h"
-#include "file.h"
-#include "commander.h"
-#include "return_code.h"
+#include "include/cnc.h"
+#include "include/echo.h"
+#include "include/shell.h"
+#include "include/msgbox.h"
+#include "include/logger.h"
+#include "include/file.h"
+#include "include/commander.h"
+#include "include/return_code.h"
 
 void handle_echo()
 {

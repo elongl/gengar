@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "utils.h"
+#include "include/utils.h"
 
 #define CMD_PATH "C:\\Windows\\System32\\cmd.exe"
 #define CMD_ARG_LEN STRLEN("/c ")

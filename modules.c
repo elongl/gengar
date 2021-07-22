@@ -1,5 +1,5 @@
-#include "logger.h"
-#include "shell.h"
+#include "include/logger.h"
+#include "include/shell.h"
 
 void modules_init()
 {
