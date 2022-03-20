@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define CNC_PORT "5000"
+#define CNC_PORT "8159"
 #define SLEEP_INTERVAL_ON_CONNERROR_MS 30 * 1000
 
 #define AUTH_KEY_LEN 36
