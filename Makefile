@@ -10,12 +10,12 @@ debug: validate_auth_keys
 release: validate_auth_keys
 	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS)
 
-release_host: validate_auth_keys validate_cnc_host
-	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS) -DCNC_HOST=\"${CNC_HOST}\"
+release_host: validate_auth_keys validate_alakazam_host
+	$(CC) $(CFLAGS) $(CFLAGS_RELEASE) $(MACRO_FLAGS) -DALAKAZAM_HOST=\"${ALAKAZAM_HOST}\"
 
 
 validate_auth_keys:
 	scripts/validate_auth_key
 
-validate_cnc_host:
-	scripts/validate_cnc_host
+validate_alakazam_host:
+	scripts/validate_alakazam_host

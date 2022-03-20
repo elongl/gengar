@@ -22,6 +22,6 @@ make
 make release
 
 # Release With CNC Host
-export CNC_HOST="address.of.cnc"
+export ALAKAZAM_HOST="address.of.cnc"
 make release_host
 ```

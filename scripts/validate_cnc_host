@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$CNC_HOST" ]; then
+if [ -z "$ALAKAZAM_HOST" ]; then
     echo "Invalid CNC host."
     exit 1
 fi
