@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall *.c -o gengar -lws2_32 -lgdi32
 CFLAGS_RELEASE=-mwindows
-MACRO_FLAGS=-DCNC_KEY=\"${CNC_KEY}\" -DGENGAR_KEY=\"${GENGAR_KEY}\"
+MACRO_FLAGS=-DALAKAZAM_KEY=\"${ALAKAZAM_KEY}\" -DGENGAR_KEY=\"${GENGAR_KEY}\"
 
 
 debug: validate_auth_keys
