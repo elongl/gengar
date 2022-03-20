@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include "include/utils.h"
 #include "include/logger.h"
 #include "include/shell.h"
 
